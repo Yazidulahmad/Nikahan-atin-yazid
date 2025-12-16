@@ -1,0 +1,608 @@
+/* === FONT FACE UNTUK FONT CUSTOM === */
+@font-face {
+    font-family: 'Amoresa';
+    src: url('https://fonts.cdnfonts.com/s/142256/AmoresaPersonalUseRegular-MVYrJ.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'TAN Mon Cheri';
+    src: url('https://fonts.cdnfonts.com/s/101119/TAN-MON-CHERI.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Moontime';
+    src: url('https://fonts.cdnfonts.com/s/145259/MoonTime-Regular-1.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+:root {
+    --primary: #d4af37;
+    --secondary: #8b7355;
+    --accent: #c19a6b;
+    --dark: #2c2c2c;
+    --light: #f8f4e9;
+    --white: #ffffff;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --gold: linear-gradient(135deg, #d4af37, #f9e076);
+    --overlay: rgba(0, 0, 0, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--dark);
+    background-color: var(--light);
+    overflow-x: hidden;
+    line-height: 1.6;
+    font-size: 14px;
+    padding-bottom: 60px; /* Space for bottom nav */
+}
+
+/* === VIDEO BACKGROUND === */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translateX(-50%) translateY(-50%);
+    object-fit: cover;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay);
+    z-index: -1;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3, h4, h5 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+}
+
+.cover-title {
+    font-family: 'Amoresa', cursive;
+    font-size: 3.5rem;
+    letter-spacing: 3px;
+}
+
+.cover-subtitle {
+    font-family: 'TAN Mon Cheri', cursive;
+    font-size: 2rem;
+    letter-spacing: 2px;
+}
+
+.couple-names-cover {
+    font-family: 'Moontime', cursive;
+    font-size: 2.5rem;
+    margin: 20px 0;
+}
+
+.couple-names {
+    font-family: 'Moontime', cursive;
+    font-size: 2.2rem;
+}
+
+.arabic {
+    font-family: 'Amiri', serif;
+    font-size: 1.3rem;
+    line-height: 1.8;
+}
+
+.typing-text {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: typingEffect 1s forwards;
+}
+
+@keyframes typingEffect {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === SECTION STYLES === */
+.section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* === COVER SECTION === */
+.cover-section {
+    color: var(--white);
+    text-align: center;
+    position: relative;
+    transition: all 0.8s ease;
+    background: transparent !important;
+}
+
+.cover-section.hidden {
+    min-height: 0;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cover-content {
+    z-index: 2;
+    position: relative;
+}
+
+.cover-divider {
+    margin: 20px 0;
+    color: var(--primary);
+}
+
+.to-guest {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    padding: 10px 20px;
+    border-left: 3px solid var(--primary);
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.cover-date {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* === BUTTONS === */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 25px;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.btn:hover {
+    background: var(--secondary);
+    transform: translateY(-3px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+/* === SECTION TITLES === */
+.section-title {
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+    color: var(--secondary);
+    text-align: center;
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px;
+}
+
+/* === DETAIL PENGANTIN === */
+.couple-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.couple-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 25px;
+    width: 280px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.couple-card:hover {
+    transform: translateY(-10px);
+}
+
+.couple-img-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 5px solid var(--primary);
+}
+
+.couple-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.couple-card:hover .couple-img {
+    transform: scale(1.1);
+}
+
+/* === DETAIL ACARA === */
+.countdown-in-event {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(5px);
+    box-shadow: var(--shadow);
+}
+
+.countdown-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--secondary);
+    text-align: center;
+}
+
+.event-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 40px;
+}
+
+.event-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 25px;
+    width: 320px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+}
+
+.unified-event {
+    width: 100%;
+    max-width: 400px;
+}
+
+.unified-event .event-icon {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* === AMPLOP DIGITAL ATM CARD === */
+.atm-card {
+    background: linear-gradient(135deg, #8B7355, #D4AF37);
+    border-radius: 15px;
+    padding: 25px;
+    width: 320px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.atm-card:hover {
+    transform: translateY(-10px);
+}
+
+.atm-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+}
+
+.atm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.atm-chip {
+    width: 50px;
+    height: 40px;
+}
+
+.atm-bank-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.atm-card-number {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-family: monospace;
+}
+
+.atm-card-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.atm-card-holder small,
+.atm-card-valid small {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.atm-card-footer {
+    text-align: center;
+}
+
+.btn-copy-atm {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Open Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-copy-atm:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* === UCAPAN SECTION === */
+.comment-form {
+    max-width: 600px;
+    margin: 25px auto 0;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
+}
+
+/* === BOTTOM NAVIGATION === */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 5px;
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    height: 60px;
+    backdrop-filter: blur(10px);
+}
+
+.nav-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--dark);
+    padding: 5px 2px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 16.666%;
+    position: relative;
+    min-width: 0;
+}
+
+.nav-tab i {
+    font-size: 1rem;
+    margin-bottom: 3px;
+    transition: all 0.3s ease;
+}
+
+.nav-tab span {
+    font-size: 0.6rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.nav-tab.active {
+    color: var(--primary);
+}
+
+.nav-tab:hover {
+    color: var(--primary);
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* === MUSIC PLAYER === */
+.music-player {
+    position: fixed;
+    bottom: 70px;
+    left: 15px;
+    z-index: 1000;
+}
+
+.music-btn {
+    background: var(--primary);
+    color: var(--white);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+}
+
+.music-btn:hover {
+    background: var(--secondary);
+    transform: scale(1.1);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .cover-title {
+        font-size: 2.5rem;
+    }
+    
+    .cover-subtitle {
+        font-size: 1.5rem;
+    }
+    
+    .couple-names-cover {
+        font-size: 1.8rem;
+    }
+    
+    .couple-names {
+        font-size: 1.7rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .event-card, .couple-card, .atm-card {
+        width: 100%;
+        max-width: 320px;
+    }
+    
+    .atm-card-number {
+        font-size: 1.2rem;
+    }
+    
+    .bank-options {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .cover-title {
+        font-size: 2rem;
+    }
+    
+    .cover-subtitle {
+        font-size: 1.2rem;
+    }
+    
+    .couple-names-cover {
+        font-size: 1.5rem;
+    }
+    
+    .section {
+        padding: 60px 15px;
+    }
+    
+    .nav-tab span {
+        font-size: 0.5rem;
+    }
+    
+    .bottom-nav {
+        height: 55px;
+    }
+}
