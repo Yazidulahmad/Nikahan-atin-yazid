@@ -1178,6 +1178,10 @@ textarea.form-control {
         font-size: 1.8rem;
     }
     
+    .countdown-label {
+        font-size: 0.8rem;
+    }
+    
     .bottom-nav {
         padding: 6px 8px;
         height: 60px;
@@ -1269,12 +1273,6 @@ textarea.form-control {
 }
 
 /* Optimasi untuk foto portrait */
-.gallery-item img {
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-}
-
 .couple-img {
     object-fit: cover;
     width: 100%;
