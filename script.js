@@ -1,6 +1,6 @@
 // Inisialisasi AOS
 AOS.init({
-    duration: 800,
+    duration: 500,
     once: false,
     offset: 50
 });
@@ -9,105 +9,105 @@ AOS.init({
 let currentGuestName = '';
 let database;
 let commentsRef;
+let isMusicPlaying = false;
+let currentSection = 'cover';
 
-// File SVG untuk setiap section (ganti dengan nama file SVG Anda)
-const svgFiles = {
-    'pembuka': 'animasi.svg',
-    'detail-pengantin': 'animasi.svg',
-    'detail-acara': 'animasi.svg',
-    'penutup': 'animasi.svg',
-    'amplop-digital': 'animasi.svg',
-    'ucapan': 'animasi.svg'
+// Konfigurasi SVG untuk setiap section
+const svgConfigs = {
+    'cover': {
+        opacity: 0.8,
+        animation: 'slow-pulse 8s infinite'
+    },
+    'pembuka': {
+        opacity: 0.7,
+        animation: 'wave 10s infinite'
+    },
+    'detail-pengantin': {
+        opacity: 0.6,
+        animation: 'float 12s infinite'
+    },
+    'detail-acara': {
+        opacity: 0.7,
+        animation: 'pulse 6s infinite'
+    },
+    'penutup': {
+        opacity: 0.8,
+        animation: 'slow-pulse 8s infinite'
+    },
+    'amplop-digital': {
+        opacity: 0.6,
+        animation: 'wave 15s infinite'
+    },
+    'ucapan': {
+        opacity: 0.7,
+        animation: 'float 10s infinite'
+    }
 };
 
-// Fungsi untuk mengubah SVG background berdasarkan section yang aktif
-function updateSVGBackground(sectionId) {
-    const svgContainer = document.getElementById('svg-background');
-    const pageOverlay = document.getElementById('page-overlay');
-    
-    // Animasi fade out
-    svgContainer.style.opacity = '0';
-    pageOverlay.style.opacity = '0';
-    
-    setTimeout(() => {
-        // Load SVG file untuk section aktif
-        if (svgFiles[sectionId]) {
-            loadSVGFile(svgFiles[sectionId], svgContainer);
-        } else {
-            // Default fallback jika tidak ada file
-            loadDefaultSVG(svgContainer);
+// Fungsi untuk memuat SVG dari file
+async function loadSVGFromFile() {
+    try {
+        const response = await fetch('animasi.svg');
+        if (!response.ok) {
+            throw new Error(`Failed to load SVG: ${response.status}`);
         }
+        const svgContent = await response.text();
         
-        // Animasi fade in dengan delay
-        setTimeout(() => {
-            svgContainer.style.transition = 'opacity 1s ease';
-            pageOverlay.style.transition = 'opacity 1s ease';
-            svgContainer.style.opacity = '1';
-            pageOverlay.style.opacity = '1';
-        }, 300);
-    }, 500);
+        // Parse SVG untuk ekstrak konten
+        const parser = new DOMParser();
+        const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+        const svgElement = svgDoc.documentElement;
+        
+        // Optimasi SVG untuk responsif
+        if (!svgElement.hasAttribute('viewBox')) {
+            svgElement.setAttribute('viewBox', '0 0 1440 800');
+        }
+        svgElement.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+        svgElement.style.width = '100%';
+        svgElement.style.height = '100%';
+        svgElement.style.objectFit = 'cover';
+        svgElement.style.position = 'absolute';
+        svgElement.style.top = '0';
+        svgElement.style.left = '0';
+        
+        // Tambahkan ID untuk styling
+        svgElement.id = 'dynamic-svg-bg';
+        
+        return svgElement.outerHTML;
+    } catch (error) {
+        console.error('Error loading SVG:', error);
+        return createFallbackSVG();
+    }
 }
 
-// Fungsi untuk load SVG file
-function loadSVGFile(fileName, container) {
-    fetch(fileName)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Failed to load SVG: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then(svgContent => {
-            container.innerHTML = svgContent;
-            
-            // Optimasi SVG untuk responsif
-            const svgElement = container.querySelector('svg');
-            if (svgElement) {
-                // Pastikan SVG responsif
-                if (!svgElement.hasAttribute('viewBox')) {
-                    svgElement.setAttribute('viewBox', '0 0 1440 800');
-                }
-                svgElement.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-                svgElement.style.width = '100%';
-                svgElement.style.height = '100%';
-                svgElement.style.objectFit = 'cover';
-            }
-        })
-        .catch(error => {
-            console.error('Error loading SVG:', error);
-            loadDefaultSVG(container);
-        });
-}
-
-// Fungsi default SVG fallback
-function loadDefaultSVG(container) {
-    container.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+// Fungsi fallback SVG
+function createFallbackSVG() {
+    return `
+        <svg id="dynamic-svg-bg" width="100%" height="100%" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" style="position: absolute; top: 0; left: 0;">
             <defs>
                 <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.7">
-                        <animate attributeName="stop-color" values="#667eea;#764ba2;#d4af37;#667eea" dur="10s" repeatCount="indefinite"/>
+                        <animate attributeName="stop-color" values="#667eea;#764ba2;#d4af37;#667eea" dur="15s" repeatCount="indefinite"/>
                     </stop>
                     <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.5">
-                        <animate attributeName="stop-color" values="#764ba2;#d4af37;#667eea;#764ba2" dur="10s" repeatCount="indefinite"/>
+                        <animate attributeName="stop-color" values="#764ba2;#d4af37;#667eea;#764ba2" dur="15s" repeatCount="indefinite"/>
                     </stop>
                 </linearGradient>
             </defs>
             
             <rect width="100%" height="100%" fill="url(#grad1)"/>
             
-            <!-- Animated circles -->
-            <circle cx="20%" cy="30%" r="50" fill="#d4af37" opacity="0.3">
-                <animate attributeName="r" values="50;100;50" dur="8s" repeatCount="indefinite"/>
-                <animate attributeName="cx" values="20%;25%;20%" dur="6s" repeatCount="indefinite"/>
+            <!-- Animated elements -->
+            <circle cx="20%" cy="20%" r="80" fill="#ffffff" opacity="0.1">
+                <animate attributeName="r" values="80;120;80" dur="8s" repeatCount="indefinite"/>
+                <animate attributeName="cx" values="20%;25%;20%" dur="12s" repeatCount="indefinite"/>
             </circle>
             
-            <circle cx="80%" cy="70%" r="70" fill="#c19a6b" opacity="0.2">
-                <animate attributeName="r" values="70;120;70" dur="10s" repeatCount="indefinite"/>
-                <animate attributeName="cy" values="70%;75%;70%" dur="7s" repeatCount="indefinite"/>
+            <circle cx="80%" cy="60%" r="60" fill="#d4af37" opacity="0.2">
+                <animate attributeName="r" values="60;100;60" dur="10s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="60%;65%;60%" dur="14s" repeatCount="indefinite"/>
             </circle>
             
-            <!-- Floating elements -->
             <path d="M1200,300 Q1220,280 1240,300 T1280,300" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.1">
                 <animate attributeName="d" 
                     values="M1200,300 Q1220,280 1240,300 T1280,300;M1200,310 Q1220,290 1240,310 T1280,310;M1200,300 Q1220,280 1240,300 T1280,300" 
@@ -117,53 +117,113 @@ function loadDefaultSVG(container) {
     `;
 }
 
-// Fungsi untuk menambahkan efek typing pada teks
+// Fungsi untuk mengupdate background SVG
+async function updateSVGBackground(sectionId) {
+    const svgContainer = document.getElementById('svg-background-container');
+    const overlay = document.querySelector('.section-overlay');
+    
+    // Animasi fade out
+    svgContainer.style.opacity = '0';
+    overlay.style.opacity = '0.5';
+    
+    setTimeout(async () => {
+        // Load atau gunakan SVG yang sudah ada
+        if (!svgContainer.hasAttribute('data-loaded')) {
+            const svgContent = await loadSVGFromFile();
+            svgContainer.innerHTML = svgContent;
+            svgContainer.setAttribute('data-loaded', 'true');
+        }
+        
+        // Apply config untuk section
+        const config = svgConfigs[sectionId] || svgConfigs.cover;
+        const svgElement = svgContainer.querySelector('#dynamic-svg-bg') || svgContainer.querySelector('svg');
+        
+        if (svgElement) {
+            // Reset animation
+            svgElement.style.animation = 'none';
+            
+            // Apply new animation
+            setTimeout(() => {
+                svgElement.style.opacity = config.opacity;
+                svgElement.style.animation = `${config.animation} ease-in-out`;
+                
+                // Animasi fade in
+                svgContainer.style.transition = 'opacity 1.2s ease';
+                overlay.style.transition = 'opacity 1.2s ease';
+                svgContainer.style.opacity = '1';
+                overlay.style.opacity = '0.7';
+                
+                // Reset transition
+                setTimeout(() => {
+                    svgContainer.style.transition = '';
+                    overlay.style.transition = '';
+                }, 1200);
+            }, 50);
+        }
+        
+        currentSection = sectionId;
+    }, 600);
+}
+
+// Tambahkan keyframes untuk animasi
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+    @keyframes wave {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-20px) scale(1.05); }
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-15px) rotate(2deg); }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 0.6; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.02); }
+    }
+    
+    @keyframes slow-pulse {
+        0%, 100% { opacity: 0.7; transform: scale(1); }
+        50% { opacity: 0.9; transform: scale(1.01); }
+    }
+`;
+document.head.appendChild(styleSheet);
+
+// Fungsi untuk efek typing
 function applyTypingEffect() {
     const typingElements = document.querySelectorAll('.typing-text');
     
     typingElements.forEach((element, index) => {
-        // Reset untuk animasi ulang
-        const originalText = element.getAttribute('data-original-text') || element.textContent;
+        // Simpan teks asli
+        const originalText = element.textContent;
         element.setAttribute('data-original-text', originalText);
+        
+        // Reset untuk animasi
         element.textContent = '';
         element.style.width = '0';
+        element.style.borderRight = '2px solid var(--primary)';
         
         // Delay berdasarkan index
         setTimeout(() => {
             element.style.overflow = 'hidden';
             element.style.whiteSpace = 'nowrap';
-            element.style.borderRight = '2px solid var(--primary)';
+            element.style.display = 'inline-block';
             element.textContent = originalText;
             
             // Animate typing
             const charCount = originalText.length;
-            const duration = Math.min(3000, charCount * 50); // Max 3 seconds
+            const duration = Math.min(3000, charCount * 50);
             
-            element.style.animation = `typing ${duration/1000}s steps(${charCount}, end), blink-caret 0.75s step-end infinite`;
+            element.style.animation = `typing ${duration/1000}s steps(${charCount}, end) forwards`;
             
             // Remove cursor after animation
             setTimeout(() => {
                 element.style.borderRight = 'none';
-                element.style.animation = '';
-            }, duration + 500);
-        }, index * 300);
+            }, duration + 300);
+        }, index * 200);
     });
 }
-
-// Tambahkan style untuk cursor berkedip
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes blink-caret {
-        from, to { border-color: transparent }
-        50% { border-color: var(--primary); }
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-`;
-document.head.appendChild(style);
 
 // Tunggu Firebase siap
 function initializeFirebase() {
@@ -179,11 +239,8 @@ function initializeFirebase() {
         };
         checkFirebase();
         
-        // Timeout after 5 seconds
         setTimeout(() => {
-            if (!database) {
-                reject(new Error('Firebase initialization timeout'));
-            }
+            if (!database) reject(new Error('Firebase initialization timeout'));
         }, 5000);
     });
 }
@@ -265,13 +322,12 @@ function displayCommentsFromFirebase() {
             comments.push(comment);
         });
         
-        // Urutkan dari yang terbaru
         comments.sort((a, b) => b.timestamp - a.timestamp);
         displayComments(comments);
     }, (error) => {
         console.error('Error loading comments:', error);
         $('#comments-container').html(`
-            <div class="comment-item" data-aos="fade-up">
+            <div class="comment-item">
                 <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                     Gagal memuat ucapan. Silakan refresh halaman.
                 </p>
@@ -287,7 +343,7 @@ function displayComments(comments) {
     
     if (comments.length === 0) {
         commentsContainer.html(`
-            <div class="comment-item" data-aos="fade-up">
+            <div class="comment-item">
                 <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                     Belum ada ucapan. Jadilah yang pertama mengucapkan selamat!
                 </p>
@@ -328,7 +384,7 @@ $(document).ready(function() {
     }).catch(error => {
         console.error('Firebase initialization failed:', error);
         $('#comments-container').html(`
-            <div class="comment-item" data-aos="fade-up">
+            <div class="comment-item">
                 <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                     Mode offline. Ucapan tidak dapat dimuat.
                 </p>
@@ -337,7 +393,7 @@ $(document).ready(function() {
     });
     
     // Inisialisasi background pertama
-    updateSVGBackground('pembuka');
+    updateSVGBackground('cover');
     
     // Musik otomatis
     var audio = document.getElementById('wedding-music');
@@ -351,13 +407,12 @@ $(document).ready(function() {
             musicIcon.classList.remove('fa-play');
             musicIcon.classList.add('fa-pause');
             cassetteReel.classList.add('playing');
+            cassetteReel.classList.remove('paused');
+            isMusicPlaying = true;
         }).catch(function(error) {
             console.log('Autoplay prevented:', error);
         });
     }
-    
-    // Coba putar musik saat halaman dimuat
-    setTimeout(playMusic, 1000);
     
     // Toggle musik
     musicToggle.addEventListener('click', function() {
@@ -366,11 +421,15 @@ $(document).ready(function() {
             musicIcon.classList.remove('fa-play');
             musicIcon.classList.add('fa-pause');
             cassetteReel.classList.add('playing');
+            cassetteReel.classList.remove('paused');
+            isMusicPlaying = true;
         } else {
             audio.pause();
             musicIcon.classList.remove('fa-pause');
             musicIcon.classList.add('fa-play');
             cassetteReel.classList.remove('playing');
+            cassetteReel.classList.add('paused');
+            isMusicPlaying = false;
         }
     });
     
@@ -384,9 +443,6 @@ $(document).ready(function() {
             scrollTop: $('#pembuka').offset().top
         }, 1000);
         
-        // Sembunyikan nama tamu setelah membuka undangan
-        $('#guest-name').fadeOut(500);
-        
         // Tampilkan bottom navigation setelah membuka undangan
         setTimeout(() => {
             $('#bottom-nav').fadeIn(300);
@@ -395,11 +451,19 @@ $(document).ready(function() {
         // Aktifkan pencegahan scroll ke cover
         preventCoverScroll();
         
+        // Update background ke section pembuka
+        updateSVGBackground('pembuka');
+        
+        // Terapkan efek typing
+        setTimeout(applyTypingEffect, 1200);
+        
+        // Putar musik otomatis
+        if (!isMusicPlaying) {
+            setTimeout(playMusic, 500);
+        }
+        
         // Set status bahwa undangan sudah dibuka
         sessionStorage.setItem('undanganDibuka', 'true');
-        
-        // Terapkan efek typing setelah membuka undangan
-        setTimeout(applyTypingEffect, 1200);
     });
     
     // Cek jika undangan sudah dibuka sebelumnya
@@ -408,7 +472,7 @@ $(document).ready(function() {
         $('#bottom-nav').show();
         preventCoverScroll();
         
-        // Terapkan efek typing jika undangan sudah dibuka
+        // Terapkan efek typing
         setTimeout(applyTypingEffect, 500);
     }
     
@@ -420,22 +484,25 @@ $(document).ready(function() {
         
         // Cegah navigasi ke cover jika sudah dibuka
         if (target === '#cover' && sessionStorage.getItem('undanganDibuka') === 'true') {
-            return;
+            updateSVGBackground('cover');
+            $('html, body').animate({
+                scrollTop: $(target).offset().top
+            }, 500);
+        } else {
+            $('html, body').animate({
+                scrollTop: $(target).offset().top
+            }, 500);
+            
+            // Update SVG background berdasarkan section yang aktif
+            updateSVGBackground(sectionId);
+            
+            // Terapkan efek typing saat berpindah section
+            setTimeout(applyTypingEffect, 300);
         }
-        
-        $('html, body').animate({
-            scrollTop: $(target).offset().top
-        }, 500);
         
         // Update active tab
         $('.nav-tab').removeClass('active');
         $(this).addClass('active');
-        
-        // Update SVG background berdasarkan section yang aktif
-        updateSVGBackground(sectionId);
-        
-        // Terapkan efek typing saat berpindah section
-        setTimeout(applyTypingEffect, 300);
     });
     
     // Deteksi scroll untuk mengubah background SVG
@@ -444,13 +511,16 @@ $(document).ready(function() {
         var windowHeight = $(window).height();
         
         // Cari section yang sedang terlihat
-        $('.content-section').each(function() {
+        $('.section').each(function() {
+            var sectionId = $(this).attr('id');
             var sectionTop = $(this).offset().top - 100;
             var sectionBottom = sectionTop + $(this).outerHeight();
             
             if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
-                var sectionId = $(this).attr('id');
-                updateSVGBackground(sectionId);
+                if (sectionId !== currentSection) {
+                    updateSVGBackground(sectionId);
+                    currentSection = sectionId;
+                }
                 
                 // Update active tab
                 $('.nav-tab').removeClass('active');
@@ -461,7 +531,7 @@ $(document).ready(function() {
         // Sembunyikan bottom nav di cover section (hanya jika cover belum dibuka)
         if (scrollPosition < windowHeight * 0.8 && !sessionStorage.getItem('undanganDibuka')) {
             $('#bottom-nav').fadeOut(300);
-        } else {
+        } else if (sessionStorage.getItem('undanganDibuka')) {
             $('#bottom-nav').fadeIn(300);
         }
     });
@@ -486,20 +556,20 @@ $(document).ready(function() {
     setInterval(updateCountdown, 1000);
     updateCountdown();
     
-    // Simpan ke kalender - TANPA KONFIRMASI (untuk acara gabungan)
-    $('#save-akad-resepsi').click(function() {
+    // Simpan ke kalender - TANPA KONFIRMASI (Acara Gabungan)
+    $('#save-combined-event').click(function() {
         var startDate = '20251221T090000';
         var endDate = '20251221T140000';
         var title = 'Akad Nikah & Resepsi Hartini & Ahmad Yazidul Jihad';
-        var location = 'Kediaman Mempelai Wanita';
-        var details = 'Akad Nikah dan Resepsi Pernikahan Hartini & Ahmad Yazidul Jihad';
+        var location = 'Kediaman Mempelai Wanita & Gedung Serba Guna, Jl. Merdeka No. 123, Jakarta Pusat';
+        var details = 'Akad Nikah: 09:00 WIB\nResepsi: 11:00-14:00 WIB\n\nAcara pernikahan Hartini & Ahmad Yazidul Jihad';
         
         var googleCalendarUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + 
             encodeURIComponent(title) + '&dates=' + startDate + '/' + endDate + 
             '&details=' + encodeURIComponent(details) + '&location=' + encodeURIComponent(location);
         
         window.open(googleCalendarUrl, '_blank');
-        showSuccessMessage('Acara akad nikah dan resepsi ditambahkan ke kalender');
+        showSuccessMessage('Acara pernikahan ditambahkan ke kalender');
     });
     
     // Buka Google Maps
@@ -508,10 +578,10 @@ $(document).ready(function() {
         showSuccessMessage('Membuka lokasi di Google Maps');
     });
     
-    // Salin nomor rekening (ATM Card)
+    // Salin nomor rekening dari card ATM
     $('.atm-copy-btn').click(function() {
         var accountNumber = $(this).data('account');
-        copyToClipboard(accountNumber.replace(/\s/g, ''));
+        copyToClipboard(accountNumber);
     });
     
     // Kirim ucapan
@@ -541,11 +611,9 @@ $(document).ready(function() {
         // Simpan ke Firebase
         saveCommentToFirebase(comment)
             .then(() => {
-                // Reset form
                 $('#comment-message').val('');
-                
-                // Tampilkan pesan sukses
                 showSuccessMessage('Ucapan Anda telah terkirim');
+                displayCommentsFromFirebase();
             })
             .catch((error) => {
                 console.error('Error saving comment:', error);
