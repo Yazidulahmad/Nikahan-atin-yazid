@@ -26,11 +26,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- SVG Background Animation untuk setiap section -->
-    <div class="svg-background" id="svg-background"></div>
+    <!-- SVG Background Container -->
+    <div id="svg-background-container">
+        <!-- SVG akan dimuat secara dinamis dari file animasi.svg -->
+    </div>
     
-    <!-- Overlay transparan untuk setiap section -->
-    <div class="page-overlay" id="page-overlay"></div>
+    <!-- Overlay Transparan untuk Semua Section -->
+    <div class="section-overlay" id="section-overlay"></div>
     
     <!-- Audio Element -->
     <audio id="wedding-music" loop>
@@ -39,7 +41,7 @@
     </audio>
     
     <!-- Music Player (Piringan Kaset) -->
-    <div class="music-player">
+    <div class="music-player" id="music-player">
         <div class="cassette-player" id="music-toggle">
             <div class="cassette">
                 <div class="cassette-body">
@@ -53,7 +55,6 @@
                         <div class="reel-center"></div>
                     </div>
                 </div>
-                <div class="cassette-tape"></div>
             </div>
             <div class="cassette-controls">
                 <i class="fas fa-play" id="music-icon"></i>
@@ -63,12 +64,16 @@
     
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav" id="bottom-nav">
-        <a href="#pembuka" class="nav-tab" data-section="pembuka">
+        <a href="#cover" class="nav-tab" data-section="cover">
             <i class="fas fa-home"></i>
+            <span>Cover</span>
+        </a>
+        <a href="#pembuka" class="nav-tab" data-section="pembuka">
+            <i class="fas fa-heart"></i>
             <span>Pembuka</span>
         </a>
         <a href="#detail-pengantin" class="nav-tab" data-section="pengantin">
-            <i class="fas fa-heart"></i>
+            <i class="fas fa-users"></i>
             <span>Pengantin</span>
         </a>
         <a href="#detail-acara" class="nav-tab" data-section="acara">
@@ -92,20 +97,11 @@
     <!-- Cover Section -->
     <section id="cover" class="section cover-section">
         <div class="container">
-            <div class="cover-content" data-aos="fade-up">
-                <div class="floral-decoration top-floral">
-                    <i class="fas fa-leaf"></i>
-                    <i class="fas fa-leaf"></i>
-                    <i class="fas fa-leaf"></i>
-                </div>
-                
+            <div class="cover-content">
                 <h1 class="cover-title">Undangan</h1>
-                <div class="cover-divider">
-                    <i class="fas fa-heart"></i>
-                </div>
                 <h2 class="cover-subtitle">Pernikahan</h2>
                 
-                <div class="couple-names-cover">Hartini & Ahmad Yazidul Jihad</div>
+                <div class="couple-names-cover">Hartini &<br>Ahmad Yazidul Jihad</div>
                 
                 <div class="to-guest" id="guest-name">Kepada Yth. Bapak/Ibu/Saudara/i</div>
                 
@@ -117,37 +113,30 @@
                 <button class="btn cover-btn" id="open-invitation">
                     <i class="fas fa-envelope-open-text"></i> Buka Undangan
                 </button>
-                
-                <div class="floral-decoration bottom-floral">
-                    <i class="fas fa-leaf"></i>
-                    <i class="fas fa-leaf"></i>
-                    <i class="fas fa-leaf"></i>
-                </div>
             </div>
         </div>
     </section>
     
     <!-- Pembuka Section -->
-    <section id="pembuka" class="section content-section">
+    <section id="pembuka" class="section">
         <div class="container">
-            <div class="text-container" data-aos="fade-up">
+            <div class="text-content">
                 <p class="opening-quote arabic">"وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ"</p>
                 <p class="opening-quote">(QS. Ar-Rum: 21)</p>
-                <h2 class="couple-names typing-text">Hartini & Ahmad Yazidul Jihad</h2>
+                <h2 class="couple-names">Hartini &<br>Ahmad Yazidul Jihad</h2>
                 <p class="invitation-text typing-text">Dengan penuh rasa syukur dan kebahagiaan, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam acara pernikahan kami.</p>
             </div>
         </div>
     </section>
     
     <!-- Detail Pengantin Section -->
-    <section id="detail-pengantin" class="section content-section">
+    <section id="detail-pengantin" class="section">
         <div class="container">
-            <h2 data-aos="fade-up" class="section-title typing-text">Mempelai</h2>
+            <h2 class="section-title typing-text">Mempelai</h2>
             <div class="couple-container">
-                <div class="couple-card" data-aos="fade-right">
+                <div class="couple-card">
                     <div class="couple-img-container">
                         <img src="https://raw.githubusercontent.com/Yazidulahmad/Foto-bahan/59ac14e43997a2891ad1884dd0cff423daf67301/poto%20single%20atin.png" alt="Hartini" class="couple-img">
-                        <div class="img-overlay"></div>
                     </div>
                     <h3 class="couple-name">Hartini</h3>
                     <p class="couple-parents typing-text">Putri dari Bapak Supriyadi & Ibu Maesaroh</p>
@@ -156,10 +145,9 @@
                     </div>
                 </div>
                 
-                <div class="couple-card" data-aos="fade-left">
+                <div class="couple-card">
                     <div class="couple-img-container">
                         <img src="https://raw.githubusercontent.com/Yazidulahmad/Foto-bahan/9c659d00adc40f2aa2c72edbe538ead42b7da9c6/poto%20single%20yazid.png" alt="Ahmad Yazidul Jihad" class="couple-img">
-                        <div class="img-overlay"></div>
                     </div>
                     <h3 class="couple-name">Ahmad Yazidul Jihad</h3>
                     <p class="couple-parents typing-text">Putra dari Bapak Suhada (Alm) & Ibu Didah Saidah</p>
@@ -172,12 +160,12 @@
     </section>
     
     <!-- Detail Acara Section -->
-    <section id="detail-acara" class="section content-section">
+    <section id="detail-acara" class="section">
         <div class="container">
-            <h2 data-aos="fade-up" class="section-title typing-text">Detail Acara</h2>
+            <h2 class="section-title typing-text">Detail Acara</h2>
             
-            <!-- Hitung Mundur di Acara -->
-            <div class="countdown-container" data-aos="fade-up" data-aos-delay="200">
+            <!-- Countdown Timer -->
+            <div class="countdown-container">
                 <div class="countdown-item">
                     <div class="countdown-number" id="days">00</div>
                     <div class="countdown-label typing-text">Hari</div>
@@ -195,37 +183,43 @@
                     <div class="countdown-label typing-text">Detik</div>
                 </div>
             </div>
+            <p class="countdown-message typing-text">Menuju hari bahagia kami</p>
             
+            <!-- Combined Wedding Event Card -->
             <div class="event-details">
-                <div class="event-card combined-event" data-aos="zoom-in" data-aos-delay="100">
+                <div class="event-card combined-event">
                     <div class="event-icon">
                         <i class="fas fa-heart"></i>
                     </div>
                     <h3 class="event-title typing-text">Akad Nikah & Resepsi</h3>
-                    <p class="event-info typing-text"><i class="far fa-calendar"></i> Sabtu, 21 Desember 2025</p>
-                    <p class="event-info typing-text"><i class="far fa-clock"></i> 09:00 - 14:00 WIB</p>
-                    <p class="event-info typing-text"><i class="fas fa-map-marker-alt"></i> Kediaman Mempelai Wanita</p>
-                    <p class="event-info typing-text"><i class="fas fa-glass-cheers"></i> Dilanjutkan dengan Resepsi</p>
+                    
+                    <div class="event-time">
+                        <p class="event-info typing-text"><i class="far fa-calendar"></i> Sabtu, 21 Desember 2025</p>
+                        <div class="time-details">
+                            <div class="time-section">
+                                <h4 class="typing-text"><i class="fas fa-mosque"></i> Akad Nikah</h4>
+                                <p class="typing-text"><i class="far fa-clock"></i> 09:00 WIB</p>
+                            </div>
+                            <div class="time-section">
+                                <h4 class="typing-text"><i class="fas fa-glass-cheers"></i> Resepsi</h4>
+                                <p class="typing-text"><i class="far fa-clock"></i> 11:00 - 14:00 WIB</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="event-location">
+                        <h4 class="typing-text"><i class="fas fa-map-marker-alt"></i> Lokasi Acara</h4>
+                        <p class="typing-text">Kediaman Mempelai Wanita & Gedung Serba Guna</p>
+                        <p class="address typing-text">Jl. Merdeka No. 123, Jakarta Pusat</p>
+                    </div>
                     
                     <div class="event-actions">
-                        <button class="btn btn-outline mt-3 calendar-btn" id="save-akad-resepsi">
+                        <button class="btn btn-outline calendar-btn" id="save-combined-event">
                             <i class="far fa-calendar-plus"></i> Simpan ke Kalender
                         </button>
-                        <button class="btn btn-outline mt-3" id="open-map">
+                        <button class="btn" id="open-map">
                             <i class="fas fa-directions"></i> Buka di Google Maps
                         </button>
-                    </div>
-                </div>
-                
-                <div class="event-card" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="event-icon">
-                        <i class="fas fa-map-marked-alt"></i>
-                    </div>
-                    <h3 class="event-title typing-text">Lokasi Acara</h3>
-                    <p class="event-info typing-text"><i class="fas fa-location-dot"></i> Jl. Merdeka No. 123, Jakarta Pusat</p>
-                    <div class="map-placeholder">
-                        <i class="fas fa-map-location-dot"></i>
-                        <p class="typing-text">Peta Lokasi</p>
                     </div>
                 </div>
             </div>
@@ -233,76 +227,103 @@
     </section>
     
     <!-- Penutup Section -->
-    <section id="penutup" class="section content-section">
+    <section id="penutup" class="section">
         <div class="container">
-            <div data-aos="fade-up">
+            <div class="text-content">
                 <h2 class="section-title typing-text">Terima Kasih</h2>
                 <p class="closing-message typing-text">Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami mengucapkan terima kasih. Semoga Allah SWT senantiasa meridhoi pernikahan kami dan memberikan keberkahan dalam rumah tangga yang akan kami bangun.</p>
-                <p class="closing-message arabic">وَالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
+                <p class="closing-message arabic typing-text">وَالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
                 <p class="closing-message typing-text">Kami yang berbahagia,</p>
                 <h3 class="couple-names typing-text">Hartini & Ahmad Yazidul Jihad</h3>
             </div>
         </div>
     </section>
     
-    <!-- Amplop Digital Section -->
-    <section id="amplop-digital" class="section content-section">
+    <!-- Amplop Digital Section dengan Desain Kartu ATM -->
+    <section id="amplop-digital" class="section">
         <div class="container">
-            <h2 data-aos="fade-up" class="section-title typing-text">Amplop Digital</h2>
-            <p data-aos="fade-up" class="amplop-text typing-text">Untuk yang ingin memberikan tanda kasih, dapat melalui transfer ke:</p>
-            <div class="bank-options">
-                <div class="bank-card atm-card" data-aos="fade-right">
+            <h2 class="section-title typing-text">Amplop Digital</h2>
+            <p class="amplop-text typing-text">Untuk yang ingin memberikan tanda kasih, dapat melalui transfer ke:</p>
+            
+            <div class="atm-cards-container">
+                <!-- ATM Card 1 -->
+                <div class="atm-card">
                     <div class="atm-card-header">
-                        <div class="chip"></div>
                         <div class="bank-logo">
                             <i class="fas fa-university"></i>
                             <span>BCA</span>
                         </div>
-                    </div>
-                    <div class="atm-card-body">
-                        <div class="card-number">1234 5678 9012 3456</div>
-                        <div class="card-details">
-                            <div class="card-holder">
-                                <div class="label typing-text">Pemilik Kartu</div>
-                                <div class="value">Hartini</div>
-                            </div>
-                            <div class="card-valid">
-                                <div class="label typing-text">Valid Thru</div>
-                                <div class="value">12/30</div>
-                            </div>
+                        <div class="atm-chip">
+                            <i class="fas fa-microchip"></i>
                         </div>
                     </div>
+                    
+                    <div class="atm-card-number">
+                        <span>1234</span>
+                        <span>5678</span>
+                        <span>9012</span>
+                        <span>3456</span>
+                    </div>
+                    
+                    <div class="atm-card-details">
+                        <div class="card-holder">
+                            <label class="typing-text">Pemilik Kartu</label>
+                            <div class="holder-name">HARTINI</div>
+                        </div>
+                        <div class="card-valid">
+                            <label class="typing-text">Valid Thru</label>
+                            <div class="valid-date">12/30</div>
+                        </div>
+                    </div>
+                    
                     <div class="atm-card-footer">
-                        <button class="btn-copy atm-copy-btn" data-account="1234567890123456">
-                            <i class="far fa-copy"></i> Salin Nomor
+                        <div class="account-info">
+                            <p class="typing-text"><strong>No. Rekening:</strong> 1234567890</p>
+                            <p class="typing-text"><strong>Atas Nama:</strong> Hartini</p>
+                        </div>
+                        <button class="btn-copy atm-copy-btn" data-account="1234567890">
+                            <i class="far fa-copy"></i> Salin
                         </button>
                     </div>
                 </div>
                 
-                <div class="bank-card atm-card" data-aos="fade-left">
+                <!-- ATM Card 2 -->
+                <div class="atm-card">
                     <div class="atm-card-header">
-                        <div class="chip"></div>
                         <div class="bank-logo">
                             <i class="fas fa-landmark"></i>
                             <span>Mandiri</span>
                         </div>
-                    </div>
-                    <div class="atm-card-body">
-                        <div class="card-number">9876 5432 1098 7654</div>
-                        <div class="card-details">
-                            <div class="card-holder">
-                                <div class="label typing-text">Pemilik Kartu</div>
-                                <div class="value">Ahmad Yazidul Jihad</div>
-                            </div>
-                            <div class="card-valid">
-                                <div class="label typing-text">Valid Thru</div>
-                                <div class="value">12/30</div>
-                            </div>
+                        <div class="atm-chip">
+                            <i class="fas fa-microchip"></i>
                         </div>
                     </div>
+                    
+                    <div class="atm-card-number">
+                        <span>5678</span>
+                        <span>9012</span>
+                        <span>3456</span>
+                        <span>7890</span>
+                    </div>
+                    
+                    <div class="atm-card-details">
+                        <div class="card-holder">
+                            <label class="typing-text">Pemilik Kartu</label>
+                            <div class="holder-name">AHMAD YAZIDUL JIHAD</div>
+                        </div>
+                        <div class="card-valid">
+                            <label class="typing-text">Valid Thru</label>
+                            <div class="valid-date">12/30</div>
+                        </div>
+                    </div>
+                    
                     <div class="atm-card-footer">
-                        <button class="btn-copy atm-copy-btn" data-account="9876543210987654">
-                            <i class="far fa-copy"></i> Salin Nomor
+                        <div class="account-info">
+                            <p class="typing-text"><strong>No. Rekening:</strong> 0987654321</p>
+                            <p class="typing-text"><strong>Atas Nama:</strong> Ahmad Yazidul Jihad</p>
+                        </div>
+                        <button class="btn-copy atm-copy-btn" data-account="0987654321">
+                            <i class="far fa-copy"></i> Salin
                         </button>
                     </div>
                 </div>
@@ -311,10 +332,10 @@
     </section>
     
     <!-- Ucapan Section -->
-    <section id="ucapan" class="section content-section">
+    <section id="ucapan" class="section">
         <div class="container">
-            <h2 data-aos="fade-up" class="section-title typing-text">Kirim Ucapan</h2>
-            <div class="comment-form" data-aos="fade-up">
+            <h2 class="section-title typing-text">Kirim Ucapan</h2>
+            <div class="comment-form">
                 <div class="form-group">
                     <textarea class="form-control" id="comment-message" placeholder="Tulis ucapan dan doa Anda di sini..."></textarea>
                 </div>
@@ -323,7 +344,9 @@
                 </button>
             </div>
             <div class="comments-list" id="comments-container">
-                <!-- Komentar akan ditampilkan di sini -->
+                <div class="comment-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Memuat ucapan...
+                </div>
             </div>
         </div>
     </section>
@@ -336,12 +359,10 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics.js";
         import { getDatabase, ref, push, onValue, orderByChild, limitToLast, query } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAEgnYSpi9bZx-sBPWn4obiDLAYFrps49s",
             authDomain: "wedding-invite-yazid-atin.firebaseapp.com",
@@ -353,12 +374,10 @@
             measurementId: "G-XVJG147JL4"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const database = getDatabase(app);
         
-        // Export Firebase instances for use in other scripts
         window.firebaseApp = app;
         window.firebaseDatabase = database;
         window.firebaseRef = ref;
