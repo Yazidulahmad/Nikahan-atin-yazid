@@ -1,670 +1,518 @@
-// Inisialisasi AOS  
-AOS.init({  
-    duration: 800,  
-    once: true,  
-    offset: 50,  
-    easing: 'ease-in-out'  
-});  
-  
-// Inisialisasi Lightbox  
-lightbox.option({  
-    'resizeDuration': 200,  
-    'wrapAround': true,  
-    'imageFadeDuration': 300,  
-    'positionFromTop': 50  
-});  
-  
-// Variabel global  
-let currentGuestName = '';  
-let database;  
-let commentsRef;  
-let isMusicPlaying = false;  
-let currentSection = null;  
-  
-// Tunggu Firebase siap  
-function initializeFirebase() {  
-    return new Promise((resolve, reject) => {  
-        const checkFirebase = () => {  
-            if (window.firebaseDatabase && window.firebaseRef) {  
-                database = window.firebaseDatabase;  
-                commentsRef = window.firebaseRef(database, 'comments');  
-                resolve();  
-            } else {  
-                setTimeout(checkFirebase, 100);  
-            }  
-        };  
-        checkFirebase();  
-          
-        setTimeout(() => {  
-            if (!database) {  
-                reject(new Error('Firebase initialization timeout'));  
-            }  
-        }, 5000);  
-    });  
-}  
-  
-// Fungsi untuk mengambil parameter dari URL  
-function getUrlParameter(name) {  
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');  
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');  
-    var results = regex.exec(location.search);  
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));  
-}  
-  
-// Tampilkan pesan sukses  
-function showSuccessMessage(message) {  
-    const successEl = document.getElementById('success-message');  
-    const successText = document.getElementById('success-text');  
-      
-    successText.textContent = message;  
-    successEl.classList.add('show');  
-      
-    setTimeout(() => {  
-        successEl.classList.remove('show');  
-    }, 3000);  
-}  
-  
-// Salin teks ke clipboard  
-function copyToClipboard(text) {  
-    navigator.clipboard.writeText(text).then(() => {  
-        showSuccessMessage('Nomor rekening berhasil disalin');  
-    }).catch(err => {  
-        console.error('Gagal menyalin teks: ', err);  
-        // Fallback untuk browser lama  
-        const textArea = document.createElement('textarea');  
-        textArea.value = text;  
-        document.body.appendChild(textArea);  
-        textArea.select();  
-        document.execCommand('copy');  
-        document.body.removeChild(textArea);  
-        showSuccessMessage('Nomor rekening berhasil disalin');  
-    });  
-}  
-  
-// Typewriter effect untuk elemen tertentu  
-function initTypewriterEffect() {  
-    const typewriterElements = document.querySelectorAll('.typewriter-text:not(.no-typewriter)');  
-      
-    typewriterElements.forEach((element, index) => {  
-        const text = element.textContent;  
-        element.textContent = '';  
-        element.style.display = 'inline-block';  
-          
-        let i = 0;  
-        function typeWriter() {  
-            if (i < text.length) {  
-                element.textContent += text.charAt(i);  
-                i++;  
-                setTimeout(typeWriter, 50 + Math.random() * 50); // Random delay untuk efek natural  
-            } else {  
-                element.style.borderRight = 'none';  
-            }  
-        }  
-          
-        // Delay antar elemen  
-        setTimeout(() => {  
-            typeWriter();  
-        }, index * 500);  
-    });  
-}  
-  
-// Page transition magic effect  
-function createPageTransition() {  
-    const transition = document.createElement('div');  
-    transition.className = 'page-transition';  
-    document.body.appendChild(transition);  
-    return transition;  
-}  
-  
-function showPageTransition(callback) {  
-    const transition = document.querySelector('.page-transition') || createPageTransition();  
-    transition.classList.add('active');  
-      
-    setTimeout(() => {  
-        if (callback) callback();  
-        setTimeout(() => {  
-            transition.classList.remove('active');  
-        }, 300);  
-    }, 500);  
-}  
-  
-// Update overlay berdasarkan section aktif  
-function updateSectionOverlay(sectionId) {  
-    const overlays = document.querySelectorAll('.section-overlay');  
-    overlays.forEach(overlay => {  
-        overlay.classList.remove('active');  
-        if (overlay.id.includes(sectionId)) {  
-            overlay.classList.add('active');  
-        }  
-    });  
-      
-    // Update section active class  
-    document.querySelectorAll('.section').forEach(section => {  
-        section.classList.remove('active');  
-        if (section.id === sectionId || sectionId === 'cover') {  
-            section.classList.add('active');  
-        }  
-    });  
-}  
-  
-// Cegah scroll ke cover  
-function preventCoverScroll() {  
-    $(window).off('scroll.coverPrevention');  
-      
-    $(window).on('scroll.coverPrevention', function() {  
-        const coverSection = document.getElementById('cover');  
-        if (coverSection.classList.contains('hidden')) {  
-            const coverRect = coverSection.getBoundingClientRect();  
-            if (coverRect.top < 0 && coverRect.bottom > 0) {  
-                window.scrollTo(0, document.getElementById('pembuka').offsetTop);  
-            }  
-        }  
-    });  
-}  
-  
-// Format tanggal untuk komentar  
-function formatCommentDate(timestamp) {  
-    const date = new Date(timestamp);  
-    const options = {  
-        year: 'numeric',  
-        month: 'long',  
-        day: 'numeric',  
-        hour: '2-digit',  
-        minute: '2-digit'  
-    };  
-    return date.toLocaleDateString('id-ID', options);  
-}  
-  
-// Simpan komentar ke Firebase  
-function saveCommentToFirebase(comment) {  
-    return window.firebasePush(commentsRef, comment);  
-}  
-  
-// Tampilkan komentar dari Firebase  
-function displayCommentsFromFirebase() {  
-    const commentsQuery = window.firebaseQuery(commentsRef, window.firebaseOrderByChild('timestamp'));  
-    const limitedQuery = window.firebaseQuery(commentsQuery, window.firebaseLimitToLast(50));  
-      
-    window.firebaseOnValue(limitedQuery, (snapshot) => {  
-        const comments = [];  
-        snapshot.forEach((childSnapshot) => {  
-            const comment = childSnapshot.val();  
-            comment.id = childSnapshot.key;  
-            comments.push(comment);  
-        });  
-          
-        comments.sort((a, b) => b.timestamp - a.timestamp);  
-        displayComments(comments);  
-    }, (error) => {  
-        console.error('Error loading comments:', error);  
-        $('#comments-container').html(`  
-            <div class="comment-item">  
-                <p style="text-align: center; color: var(--secondary); font-style: italic; font-family: 'Open Sans', sans-serif;">  
-                    Gagal memuat ucapan. Silakan refresh halaman.  
-                </p>  
-            </div>  
-        `);  
-    });  
-}  
-  
-// Tampilkan komentar di UI  
-function displayComments(comments) {  
-    const commentsContainer = $('#comments-container');  
-    commentsContainer.empty();  
-      
-    if (comments.length === 0) {  
-        commentsContainer.html(`  
-            <div class="comment-item" data-aos="fade-up" data-aos-duration="500">  
-                <p style="text-align: center; color: var(--secondary); font-style: italic; font-family: 'Open Sans', sans-serif;">  
-                    Belum ada ucapan. Jadilah yang pertama mengucapkan selamat!  
-                </p>  
-            </div>  
-        `);  
-        return;  
-    }  
-      
-    comments.forEach(function(comment, index) {  
-        const commentHtml = `  
-            <div class="comment-item" data-aos="fade-up" data-aos-duration="500" data-aos-delay="${index * 100}">  
-                <div class="comment-header">  
-                    <span class="comment-name">${comment.name}</span>  
-                    <span class="comment-date">${formatCommentDate(comment.timestamp)}</span>  
-                </div>  
-                <p>${comment.message}</p>  
-            </div>  
-        `;  
-        commentsContainer.append(commentHtml);  
-    });  
-      
-    // Reinit AOS untuk komentar baru  
-    AOS.refresh();  
-}  
-  
-// Musik control dengan cassette dan rotating circle  
-function initializeMusicControl() {  
-    const audio = document.getElementById('wedding-music');  
-    const musicToggle = document.getElementById('music-toggle');  
-    const musicControl = document.getElementById('music-control');  
-    const musicIcon = musicControl.querySelector('i');  
-      
-    // Fungsi play/pause  
-    function toggleMusic() {  
-        if (audio.paused) {  
-            audio.play().then(() => {  
-                isMusicPlaying = true;  
-                musicControl.classList.add('playing');  
-                musicIcon.style.transform = 'scale(0.9)';  
-                showSuccessMessage('Musik diputar');  
-            }).catch(error => {  
-                console.log('Autoplay prevented:', error);  
-                showSuccessMessage('Silakan klik untuk memutar musik');  
-            });  
-        } else {  
-            audio.pause();  
-            isMusicPlaying = false;  
-            musicControl.classList.remove('playing');  
-            musicIcon.style.transform = 'scale(1)';  
-            showSuccessMessage('Musik dijeda');  
-        }  
-    }  
-      
-    // Event listeners  
-    musicToggle.addEventListener('click', toggleMusic);  
-    musicControl.addEventListener('click', toggleMusic);  
-      
-    // Auto play saat undangan dibuka  
-    function autoPlayMusic() {  
-        if (sessionStorage.getItem('undanganDibuka') === 'true') {  
-            audio.play().catch(() => {  
-                // Silent fail for autoplay policy  
-            });  
-        }  
-    }  
-      
-    // Initial state  
-    audio.volume = 0.3;  
-      
-    return { audio, toggleMusic, autoPlayMusic };  
-}  
-  
-// Smooth scroll dengan transition  
-function smoothScrollTo(target, duration = 800) {  
-    showPageTransition(() => {  
-        $('html, body').animate({  
-            scrollTop: $(target).offset().top - 20  
-        }, duration, 'swing', () => {  
-            updateSectionOverlay(target.replace('#', ''));  
-        });  
-    });  
-}  
-  
-// Update active navigation  
-function updateActiveNavigation() {  
-    const scrollPosition = $(window).scrollTop() + 100;  
-      
-    $('.nav-tab').each(function() {  
-        const target = $(this).attr('href');  
-        const section = $(target);  
-          
-        if (section.length > 0) {  
-            const sectionTop = section.offset().top;  
-            const sectionHeight = section.outerHeight();  
-              
-            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {  
-                $('.nav-tab').removeClass('active');  
-                $(this).addClass('active');  
-                return false;  
-            }  
-        }  
-    });  
-}  
-  
-// Initialize all functionality  
-$(document).ready(function() {  
-    // Initialize Firebase  
-    initializeFirebase().then(() => {  
-        console.log('Firebase initialized successfully');  
-          
-        // Set nama tamu  
-        currentGuestName = getUrlParameter('to');  
-        if (currentGuestName) {  
-            $('#guest-name').text('Kepada Yth. ' + currentGuestName);  
-        }  
-          
-        // Load comments  
-        displayCommentsFromFirebase();  
-          
-    }).catch(error => {  
-        console.error('Firebase initialization failed:', error);  
-        $('#comments-container').html(`  
-            <div class="comment-item">  
-                <p style="text-align: center; color: var(--secondary); font-style: italic; font-family: 'Open Sans', sans-serif;">  
-                    Mode offline. Ucapan tidak dapat dimuat.  
-                </p>  
-            </div>  
-        `);  
-    });  
-      
-    // Initialize music  
-    const music = initializeMusicControl();  
-      
-    // Initialize typewriter effect  
-    setTimeout(() => {  
-        initTypewriterEffect();  
-    }, 1000);  
-      
-    // Initial overlay  
-    updateSectionOverlay('cover');  
-      
-    // Tombol buka undangan  
-    $('#open-invitation').click(function(e) {  
-        e.preventDefault();  
-          
-        // Page transition  
-        showPageTransition(() => {  
-            // Hide cover  
-            $('#cover').addClass('hidden');  
-              
-            // Show music player  
-            $('.music-player').addClass('show');  
-              
-            // Auto play music  
-            music.autoPlayMusic();  
-              
-            // Scroll to pembuka  
-            smoothScrollTo('#pembuka', 1200);  
-              
-            // Hide guest name  
-            $('#guest-name').fadeOut(800);  
-              
-            // Show bottom navigation  
-            setTimeout(() => {  
-                $('#bottom-nav').fadeIn(500);  
-            }, 1200);  
-              
-            // Prevent scroll to cover  
-            preventCoverScroll();  
-              
-            // Set session storage  
-            sessionStorage.setItem('undanganDibuka', 'true');  
-              
-            // Update overlay  
-            updateSectionOverlay('pembuka');  
-        });  
-    });  
-      
-    // Check if invitation was already opened  
-    if (sessionStorage.getItem('undanganDibuka') === 'true') {  
-        $('#cover').addClass('hidden');  
-        $('#bottom-nav').show();  
-        $('.music-player').addClass('show');  
-        preventCoverScroll();  
-        updateSectionOverlay('pembuka');  
-          
-        // Auto play music  
-        music.autoPlayMusic();  
-          
-        // Init typewriter  
-        setTimeout(() => {  
-            initTypewriterEffect();  
-        }, 500);  
-    }  
-      
-    // Bottom navigation  
-    $('.nav-tab').click(function(e) {  
-        e.preventDefault();  
-        const target = $(this).attr('href');  
-          
-        // Prevent navigation to cover if opened  
-        if (target === '#cover' && sessionStorage.getItem('undanganDibuka') === 'true') {  
-            return;  
-        }  
-          
-        // Smooth scroll with transition  
-        smoothScrollTo(target, 800);  
-          
-        // Update active tab  
-        $('.nav-tab').removeClass('active');  
-        $(this).addClass('active');  
-          
-        // Update current section  
-        currentSection = target.replace('#', '');  
-    });  
-      
-    // Scroll event untuk navigation dan overlay  
-    $(window).scroll(function() {  
-        updateActiveNavigation();  
-          
-        // Hide/show bottom nav based on position  
-        const scrollPosition = $(this).scrollTop();  
-        const windowHeight = $(this).height();  
-          
-        if (scrollPosition < windowHeight * 0.5 && !sessionStorage.getItem('undanganDibuka')) {  
-            $('#bottom-nav').fadeOut(300);  
-        } else {  
-            if (sessionStorage.getItem('undanganDibuka') === 'true') {  
-                $('#bottom-nav').fadeIn(300);  
-            }  
-        }  
-          
-        // Update overlay based on scroll position  
-        let activeSection = 'pembuka';  
-        const sections = ['pembuka', 'detail-pengantin', 'detail-acara', 'penutup', 'amplop-digital', 'ucapan'];  
-          
-        sections.forEach(sectionId => {  
-            const section = document.getElementById(sectionId);  
-            if (section) {  
-                const rect = section.getBoundingClientRect();  
-                if (rect.top < windowHeight * 0.6 && rect.bottom > windowHeight * 0.4) {  
-                    activeSection = sectionId;  
-                }  
-            }  
-        });  
-          
-        updateSectionOverlay(activeSection);  
-    });  
-      
-    // Countdown timer  
-    function updateCountdown() {  
-        const weddingDate = new Date('December 21, 2025 09:00:00').getTime();  
-        const now = new Date().getTime();  
-        const distance = weddingDate - now;  
-          
-        if (distance > 0) {  
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));  
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));  
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));  
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);  
-              
-            $('#days').text(days.toString().padStart(2, '0'));  
-            $('#hours').text(hours.toString().padStart(2, '0'));  
-            $('#minutes').text(minutes.toString().padStart(2, '0'));  
-            $('#seconds').text(seconds.toString().padStart(2, '0'));  
-              
-            // Add pulsing effect when < 1 hour  
-            if (hours === 0 && minutes < 60) {  
-                $('.countdown-number').addClass('pulse');  
-            } else {  
-                $('.countdown-number').removeClass('pulse');  
-            }  
-        } else {  
-            $('.countdown-container').html(`  
-                <div style="font-family: 'Open Sans', sans-serif; font-size: 1.5rem; color: var(--primary);">  
-                    Acara sedang berlangsung! Selamat kepada pasangan baru! 💍✨  
-                </div>  
-            `);  
-        }  
-    }  
-      
-    setInterval(updateCountdown, 1000);  
-    updateCountdown();  
-      
-    // Simpan ke kalender  
-    $('#save-combined-event').click(function() {  
-        const startDate = '20251221T090000';  
-        const endDate = '20251221T140000';  
-        const title = 'Akad Nikah & Resepsi Hartini & Ahmad Yazidul Jihad';  
-        const location = 'Kediaman Mempelai Wanita & Gedung Serba Guna, Jl. Merdeka No. 123, Jakarta Pusat';  
-        const details = 'Akad Nikah: 09:00 WIB\nResepsi: 11:00-14:00 WIB\n\nAcara pernikahan Hartini & Ahmad Yazidul Jihad\n\nKami mengundang kehadiran Anda untuk merayakan momen bahagia ini.';  
-          
-        const googleCalendarUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' +   
-            encodeURIComponent(title) + '&dates=' + startDate + '/' + endDate +   
-            '&details=' + encodeURIComponent(details) + '&location=' + encodeURIComponent(location) +  
-            '&sf=true&output=xml';  
-          
-        window.open(googleCalendarUrl, '_blank');  
-        showSuccessMessage('Acara pernikahan ditambahkan ke kalender Google');  
-    });  
-      
-    // Buka Google Maps  
-    $('#open-map').click(function() {  
-        window.open('https://maps.app.goo.gl/PzdmwVSJc67DmowM7?g_st=ipc', '_blank');  
-        showSuccessMessage('Membuka lokasi acara di Google Maps');  
-    });  
-      
-    // Copy rekening  
-    $(document).on('click', '.atm-copy-btn', function() {  
-        const accountNumber = $(this).data('account');  
-        copyToClipboard(accountNumber);  
-    });  
-      
-    // Submit komentar  
-    $('#submit-comment').click(function() {  
-        const message = $('#comment-message').val().trim();  
-          
-        if (!message) {  
-            showSuccessMessage('Harap isi pesan ucapan Anda');  
-            $('#comment-message').focus();  
-            return;  
-        }  
-          
-        if (message.length < 3) {  
-            showSuccessMessage('Pesan ucapan terlalu pendek (minimal 3 karakter)');  
-            return;  
-        }  
-          
-        if (message.length > 500) {  
-            showSuccessMessage('Pesan ucapan terlalu panjang (maksimal 500 karakter)');  
-            return;  
-        }  
-          
-        const name = currentGuestName || 'Tamu Undangan';  
-          
-        const comment = {  
-            name: name,  
-            message: message,  
-            timestamp: Date.now()  
-        };  
-          
-        // Disable button sementara  
-        const btn = $(this);  
-        const originalText = btn.html();  
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Mengirim...');  
-          
-        saveCommentToFirebase(comment)  
-            .then(() => {  
-                // Reset form  
-                $('#comment-message').val('');  
-                  
-                // Success message  
-                showSuccessMessage('Ucapan Anda berhasil terkirim! Terima kasih 🙏');  
-                  
-                // Refresh comments  
-                displayCommentsFromFirebase();  
-                  
-                // Re-enable button  
-                btn.prop('disabled', false).html(originalText);  
-            })  
-            .catch((error) => {  
-                console.error('Error saving comment:', error);  
-                showSuccessMessage('Gagal mengirim ucapan. Silakan coba lagi.');  
-                  
-                // Re-enable button  
-                btn.prop('disabled', false).html(originalText);  
-            });  
-    });  
-      
-    // Enter key untuk submit komentar  
-    $('#comment-message').keypress(function(e) {  
-        if (e.which === 13 && !e.shiftKey) {  
-            e.preventDefault();  
-            $('#submit-comment').click();  
-        }  
-    });  
-      
-    // Responsive SVG background  
-    function updateSVGBackground() {  
-        const svgContainer = document.getElementById('svg-background-container');  
-        if (svgContainer && window.innerWidth >= 768) {  
-            svgContainer.style.opacity = '1';  
-        } else if (svgContainer) {  
-            svgContainer.style.opacity = '0.8';  
-        }  
-    }  
-      
-    // Event listeners untuk responsive  
-    window.addEventListener('resize', () => {  
-        updateSVGBackground();  
-        updateActiveNavigation();  
-    });  
-      
-    // Initial call  
-    updateSVGBackground();  
-      
-    // Hide bottom nav initially if not opened  
-    if (!sessionStorage.getItem('undanganDibuka')) {  
-        $('#bottom-nav').hide();  
-    }  
-      
-    // Add pulse animation for CSS  
-    const style = document.createElement('style');  
-    style.textContent = `  
-        @keyframes pulse {  
-            0%, 100% { transform: scale(1); }  
-            50% { transform: scale(1.05); }  
-        }  
-        .pulse {  
-            animation: pulse 2s infinite;  
-        }  
-    `;  
-    document.head.appendChild(style);  
-      
-    // Performance optimization - throttle scroll events  
-    let ticking = false;  
-    function updateOnScroll() {  
-        if (!ticking) {  
-            requestAnimationFrame(() => {  
-                $(window).trigger('scroll');  
-                ticking = false;  
-            });  
-            ticking = true;  
-        }  
-    }  
-      
-    $(window).on('scroll', updateOnScroll);  
-      
-    console.log('🎉 Wedding invitation fully initialized!');  
-});  
-  
-// Preload fonts untuk performa lebih baik  
-function preloadFonts() {  
-    const link = document.createElement('link');  
-    link.rel = 'preload';  
-    link.href = 'https://fonts.googleapis.com/css2?family=Amoresa&family=TAN+Mon+Ch%C3%A9ri&family=Moontime&family=Open+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap';  
-    link.as = 'style';  
-    document.head.appendChild(link);  
-}  
-  
-// Load fonts saat DOM ready  
-$(document).ready(() => {  
-    preloadFonts();  
-});  
-  
-// Service Worker untuk PWA (optional)  
-if ('serviceWorker' in navigator) {  
-    window.addEventListener('load', () => {  
-        navigator.serviceWorker.register('/sw.js').catch(err => {  
-            console.log('Service Worker registration failed:', err);  
-        });  
-    });  
-}  
+// Inisialisasi AOS dengan durasi yang disesuaikan
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 50
+});
+
+// Inisialisasi Lightbox
+lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true,
+    'imageFadeDuration': 300,
+    'positionFromTop': 50
+});
+
+// Variabel global
+let currentGuestName = '';
+let database;
+let commentsRef;
+let isMusicPlaying = false;
+
+// Tunggu Firebase siap
+function initializeFirebase() {
+    return new Promise((resolve, reject) => {
+        const checkFirebase = () => {
+            if (window.firebaseDatabase && window.firebaseRef) {
+                database = window.firebaseDatabase;
+                commentsRef = window.firebaseRef(database, 'comments');
+                resolve();
+            } else {
+                setTimeout(checkFirebase, 100);
+            }
+        };
+        checkFirebase();
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+            if (!database) {
+                reject(new Error('Firebase initialization timeout'));
+            }
+        }, 5000);
+    });
+}
+
+// Load SVG Background
+function loadSVGBackground() {
+    fetch('animasi.svg')
+        .then(response => response.text())
+        .then(svgContent => {
+            const svgContainer = document.getElementById('svg-background');
+            svgContainer.innerHTML = svgContent;
+            
+            // Setelah SVG dimuat, atur opacity dan posisi
+            const svgElement = svgContainer.querySelector('svg');
+            if (svgElement) {
+                svgElement.style.width = '100%';
+                svgElement.style.height = '100%';
+                svgElement.style.opacity = '0.7';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading SVG:', error);
+            // Fallback jika SVG tidak ditemukan
+            const svgContainer = document.getElementById('svg-background');
+            svgContainer.innerHTML = `
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:rgba(212,175,55,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(139,115,85,0.05);stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grad1)" />
+                    <circle cx="20%" cy="20%" r="100" fill="rgba(193,154,107,0.05)" />
+                    <circle cx="80%" cy="30%" r="150" fill="rgba(212,175,55,0.05)" />
+                    <circle cx="50%" cy="70%" r="120" fill="rgba(139,115,85,0.05)" />
+                </svg>
+            `;
+        });
+}
+
+// Fungsi untuk mengambil parameter dari URL
+function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
+
+// Tampilkan pesan sukses
+function showSuccessMessage(message) {
+    const successEl = document.getElementById('success-message');
+    const successText = document.getElementById('success-text');
+    
+    successText.textContent = message;
+    successEl.classList.add('show');
+    
+    setTimeout(() => {
+        successEl.classList.remove('show');
+    }, 3000);
+}
+
+// Salin teks ke clipboard
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showSuccessMessage('Nomor rekening berhasil disalin');
+    }).catch(err => {
+        console.error('Gagal menyalin teks: ', err);
+        showSuccessMessage('Gagal menyalin nomor rekening');
+    });
+}
+
+// Cegah scroll ke cover
+function preventCoverScroll() {
+    $(window).off('scroll.coverPrevention');
+    
+    $(window).on('scroll.coverPrevention', function() {
+        const coverSection = document.getElementById('cover');
+        if (coverSection.classList.contains('hidden')) {
+            const coverRect = coverSection.getBoundingClientRect();
+            if (coverRect.top < 0 && coverRect.bottom > 0) {
+                window.scrollTo(0, document.getElementById('pembuka').offsetTop);
+            }
+        }
+    });
+}
+
+// Format tanggal untuk komentar
+function formatCommentDate(timestamp) {
+    const date = new Date(timestamp);
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    return date.toLocaleDateString('id-ID', options);
+}
+
+// Simpan komentar ke Firebase
+function saveCommentToFirebase(comment) {
+    return window.firebasePush(commentsRef, comment);
+}
+
+// Tampilkan komentar dari Firebase
+function displayCommentsFromFirebase() {
+    const commentsQuery = window.firebaseQuery(commentsRef, window.firebaseOrderByChild('timestamp'));
+    const limitedQuery = window.firebaseQuery(commentsQuery, window.firebaseLimitToLast(50));
+    
+    window.firebaseOnValue(limitedQuery, (snapshot) => {
+        const comments = [];
+        snapshot.forEach((childSnapshot) => {
+            const comment = childSnapshot.val();
+            comment.id = childSnapshot.key;
+            comments.push(comment);
+        });
+        
+        // Urutkan dari yang terbaru
+        comments.sort((a, b) => b.timestamp - a.timestamp);
+        displayComments(comments);
+    }, (error) => {
+        console.error('Error loading comments:', error);
+        $('#comments-container').html(`
+            <div class="comment-item">
+                <p style="text-align: center; color: #777; font-style: italic;">
+                    Gagal memuat ucapan. Silakan refresh halaman.
+                </p>
+            </div>
+        `);
+    });
+}
+
+// Tampilkan komentar di UI
+function displayComments(comments) {
+    const commentsContainer = $('#comments-container');
+    commentsContainer.empty();
+    
+    if (comments.length === 0) {
+        commentsContainer.html(`
+            <div class="comment-item" data-aos="fade-up" data-aos-duration="500">
+                <p style="text-align: center; color: #777; font-style: italic;">
+                    Belum ada ucapan. Jadilah yang pertama mengucapkan selamat!
+                </p>
+            </div>
+        `);
+        return;
+    }
+    
+    comments.forEach(function(comment) {
+        const commentHtml = `
+            <div class="comment-item" data-aos="fade-up" data-aos-duration="500">
+                <div class="comment-header">
+                    <span class="comment-name">${comment.name}</span>
+                    <span class="comment-date">${formatCommentDate(comment.timestamp)}</span>
+                </div>
+                <p>${comment.message}</p>
+            </div>
+        `;
+        commentsContainer.append(commentHtml);
+    });
+}
+
+// Animasi teks typewriter
+function animateTextElements() {
+    $('.typewriter-text').each(function(index) {
+        const element = $(this);
+        const text = element.text();
+        element.text('');
+        
+        // Delay berbeda untuk setiap elemen
+        setTimeout(() => {
+            let i = 0;
+            const speed = 50; // ms per karakter
+            
+            function typeWriter() {
+                if (i < text.length) {
+                    element.text(element.text() + text.charAt(i));
+                    i++;
+                    setTimeout(typeWriter, speed);
+                }
+            }
+            
+            typeWriter();
+        }, index * 300);
+    });
+}
+
+// Update SVG untuk section aktif
+function updateSVGForActiveSection() {
+    const sections = document.querySelectorAll('.section');
+    const svgContainer = document.getElementById('svg-background');
+    
+    sections.forEach(section => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Tambahkan efek transisi pada SVG
+                    svgContainer.style.transition = 'opacity 0.8s ease';
+                    svgContainer.style.opacity = '0.7';
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        observer.observe(section);
+    });
+}
+
+// Set nama tamu dari URL
+$(document).ready(function() {
+    // Load SVG background
+    loadSVGBackground();
+    
+    // Initialize Firebase
+    initializeFirebase().then(() => {
+        console.log('Firebase initialized successfully');
+        
+        // Set nama tamu
+        currentGuestName = getUrlParameter('to');
+        if (currentGuestName) {
+            $('#guest-name').text('Kepada Yth. ' + currentGuestName);
+        }
+        
+        // Tampilkan komentar
+        displayCommentsFromFirebase();
+        
+    }).catch(error => {
+        console.error('Firebase initialization failed:', error);
+        $('#comments-container').html(`
+            <div class="comment-item">
+                <p style="text-align: center; color: #777; font-style: italic;">
+                    Mode offline. Ucapan tidak dapat dimuat.
+                </p>
+            </div>
+        `);
+    });
+    
+    // Audio control
+    var audio = document.getElementById('wedding-music');
+    var musicToggle = document.getElementById('music-toggle');
+    var spinIcon = document.querySelector('.spin-icon');
+    
+    // Fungsi untuk memutar musik
+    function playMusic() {
+        audio.play().then(function() {
+            isMusicPlaying = true;
+            spinIcon.style.animationPlayState = 'running';
+        }).catch(function(error) {
+            console.log('Autoplay prevented:', error);
+        });
+    }
+    
+    // Toggle musik
+    musicToggle.addEventListener('click', function() {
+        if (audio.paused) {
+            audio.play();
+            isMusicPlaying = true;
+            spinIcon.style.animationPlayState = 'running';
+        } else {
+            audio.pause();
+            isMusicPlaying = false;
+            spinIcon.style.animationPlayState = 'paused';
+        }
+    });
+    
+    // Tombol buka undangan
+    $('#open-invitation').click(function() {
+        // Sembunyikan cover section
+        $('#cover').addClass('hidden');
+        
+        // Putar musik otomatis
+        playMusic();
+        
+        // Scroll ke section pembuka
+        $('html, body').animate({
+            scrollTop: $('#pembuka').offset().top
+        }, 1000);
+        
+        // Sembunyikan nama tamu setelah membuka undangan
+        $('#guest-name').fadeOut(500);
+        
+        // Tampilkan bottom navigation setelah membuka undangan
+        setTimeout(() => {
+            $('#bottom-nav').fadeIn(300);
+        }, 1000);
+        
+        // Aktifkan pencegahan scroll ke cover
+        preventCoverScroll();
+        
+        // Set status bahwa undangan sudah dibuka
+        sessionStorage.setItem('undanganDibuka', 'true');
+        
+        // Trigger animasi teks setelah membuka undangan
+        setTimeout(() => {
+            animateTextElements();
+        }, 1200);
+    });
+    
+    // Cek jika undangan sudah dibuka sebelumnya
+    if (sessionStorage.getItem('undanganDibuka') === 'true') {
+        $('#cover').addClass('hidden');
+        $('#bottom-nav').show();
+        preventCoverScroll();
+        
+        // Putar musik jika sudah dibuka sebelumnya
+        setTimeout(() => {
+            playMusic();
+        }, 500);
+        
+        // Trigger animasi teks
+        setTimeout(() => {
+            animateTextElements();
+        }, 800);
+    }
+    
+    // Bottom Navigation
+    $('.nav-tab').click(function(e) {
+        e.preventDefault();
+        var target = $(this).attr('href');
+        
+        // Cegah navigasi ke cover jika sudah dibuka
+        if (target === '#cover' && sessionStorage.getItem('undanganDibuka') === 'true') {
+            return;
+        }
+        
+        $('html, body').animate({
+            scrollTop: $(target).offset().top
+        }, 500);
+        
+        // Update active tab
+        $('.nav-tab').removeClass('active');
+        $(this).addClass('active');
+        
+        // Animasi teks untuk section yang aktif
+        setTimeout(() => {
+            $('.typewriter-text').css('animation', 'none');
+            setTimeout(() => {
+                $('.typewriter-text').css('animation', '');
+                animateTextElements();
+            }, 10);
+        }, 300);
+    });
+    
+    // Hitung mundur
+    function updateCountdown() {
+        var weddingDate = new Date('December 21, 2025 09:00:00').getTime();
+        var now = new Date().getTime();
+        var distance = weddingDate - now;
+        
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        $('#days').text(days.toString().padStart(2, '0'));
+        $('#hours').text(hours.toString().padStart(2, '0'));
+        $('#minutes').text(minutes.toString().padStart(2, '0'));
+        $('#seconds').text(seconds.toString().padStart(2, '0'));
+    }
+    
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+    
+    // Simpan ke kalender
+    $('#save-combined-event').click(function() {
+        var startDate = '20251221T090000';
+        var endDate = '20251221T140000';
+        var title = 'Akad Nikah & Resepsi Hartini & Ahmad Yazidul Jihad';
+        var location = 'Kediaman Mempelai Wanita & Gedung Serba Guna, Jl. Merdeka No. 123, Jakarta Pusat';
+        var details = 'Akad Nikah: 09:00 WIB\nResepsi: 11:00-14:00 WIB\n\nAcara pernikahan Hartini & Ahmad Yazidul Jihad';
+        
+        var googleCalendarUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + 
+            encodeURIComponent(title) + '&dates=' + startDate + '/' + endDate + 
+            '&details=' + encodeURIComponent(details) + '&location=' + encodeURIComponent(location);
+        
+        window.open(googleCalendarUrl, '_blank');
+        showSuccessMessage('Acara pernikahan ditambahkan ke kalender');
+    });
+    
+    // Buka Google Maps
+    $('#open-map').click(function() {
+        window.open('https://maps.app.goo.gl/PzdmwVSJc67DmowM7?g_st=ipc', '_blank');
+        showSuccessMessage('Membuka lokasi di Google Maps');
+    });
+    
+    // Salin nomor rekening dari card ATM
+    $('.atm-copy-btn').click(function() {
+        var accountNumber = $(this).data('account');
+        copyToClipboard(accountNumber);
+    });
+    
+    // Kirim ucapan
+    $('#submit-comment').click(function() {
+        var message = $('#comment-message').val().trim();
+        
+        if (!message) {
+            showSuccessMessage('Harap isi pesan Anda');
+            return;
+        }
+        
+        if (message.length < 3) {
+            showSuccessMessage('Pesan terlalu pendek');
+            return;
+        }
+        
+        // Gunakan nama tamu dari URL, atau default jika tidak ada
+        var name = currentGuestName || 'Tamu Undangan';
+        
+        // Simpan komentar
+        var comment = {
+            name: name,
+            message: message,
+            timestamp: Date.now()
+        };
+        
+        // Simpan ke Firebase
+        saveCommentToFirebase(comment)
+            .then(() => {
+                // Reset form
+                $('#comment-message').val('');
+                
+                // Tampilkan pesan sukses
+                showSuccessMessage('Ucapan Anda telah terkirim');
+                
+                // Refresh komentar
+                displayCommentsFromFirebase();
+            })
+            .catch((error) => {
+                console.error('Error saving comment:', error);
+                showSuccessMessage('Gagal mengirim ucapan. Coba lagi.');
+            });
+    });
+    
+    // Deteksi scroll untuk mengaktifkan navigasi
+    $(window).scroll(function() {
+        var scrollPosition = $(window).scrollTop();
+        var windowHeight = $(window).height();
+        
+        // Sembunyikan bottom nav di cover section (hanya jika cover belum dibuka)
+        if (scrollPosition < windowHeight * 0.8 && !sessionStorage.getItem('undanganDibuka')) {
+            $('#bottom-nav').fadeOut(300);
+        } else {
+            $('#bottom-nav').fadeIn(300);
+        }
+        
+        $('.section').each(function() {
+            var sectionId = $(this).attr('id');
+            var sectionTop = $(this).offset().top - 100;
+            var sectionBottom = sectionTop + $(this).outerHeight();
+            
+            if (scrollPosition >= sectionTop && scrollPosition < sectionBottom && sectionId !== 'cover') {
+                $('.nav-tab').removeClass('active');
+                $(`.nav-tab[href="#${sectionId}"]`).addClass('active');
+            }
+        });
+    });
+    
+    // Sembunyikan bottom nav di awal (saat di cover dan belum dibuka)
+    if (!sessionStorage.getItem('undanganDibuka')) {
+        $('#bottom-nav').hide();
+    }
+    
+    // Update SVG untuk section aktif
+    updateSVGForActiveSection();
+    
+    // Responsive SVG
+    function updateSVGResponsive() {
+        const svgContainer = document.getElementById('svg-background');
+        if (svgContainer && window.innerWidth < 768) {
+            svgContainer.style.opacity = '0.5';
+        } else if (svgContainer) {
+            svgContainer.style.opacity = '0.7';
+        }
+    }
+    
+    window.addEventListener('resize', updateSVGResponsive);
+    updateSVGResponsive();
+});
