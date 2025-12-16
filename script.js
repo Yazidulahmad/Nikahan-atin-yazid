@@ -5,80 +5,116 @@ AOS.init({
     offset: 50
 });
 
-// Inisialisasi Lightbox
-lightbox.option({
-    'resizeDuration': 200,
-    'wrapAround': true,
-    'imageFadeDuration': 300,
-    'positionFromTop': 50
-});
-
 // Variabel global
 let currentGuestName = '';
 let database;
 let commentsRef;
 
-// Konfigurasi SVG Background untuk setiap section
-const sectionBackgrounds = {
-    'pembuka': `
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" zoomAndPan="magnify" viewBox="0 0 810 1439.999935" height="1920" preserveAspectRatio="xMidYMid meet" version="1.0" xmlns:bx="https://boxy-svg.com">
-  <defs>
-        </svg>
-    `,
-    'detail-pengantin': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#d4af37" fill-opacity="0.4" d="M0,224L48,234.7C96,245,192,267,288,256C384,245,480,203,576,170.7C672,139,768,117,864,133.3C960,149,1056,203,1152,202.7C1248,203,1344,149,1392,122.7L1440,96L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#c19a6b" fill-opacity="0.3" d="M0,320L48,309.3C96,299,192,277,288,272C384,267,480,277,576,266.7C672,256,768,224,864,224C960,224,1056,256,1152,245.3C1248,235,1344,181,1392,154.7L1440,128L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-        </svg>
-    `,
-    'detail-acara': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#8b7355" fill-opacity="0.4" d="M0,288L48,282.7C96,277,192,267,288,245.3C384,224,480,192,576,176C672,160,768,160,864,170.7C960,181,1056,203,1152,197.3C1248,192,1344,160,1392,144L1440,128L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#2c2c2c" fill-opacity="0.3" d="M0,416L48,416C96,416,192,416,288,394.7C384,373,480,331,576,320C672,309,768,331,864,352C960,373,1056,395,1152,394.7C1248,395,1344,373,1392,362.7L1440,352L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-        </svg>
-    `,
-    'penutup': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#f8f4e9" fill-opacity="0.3" d="M0,512L48,501.3C96,491,192,469,288,458.7C384,448,480,448,576,437.3C672,427,768,405,864,405.3C960,405,1056,427,1152,410.7C1248,395,1344,341,1392,314.7L1440,288L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#d4af37" fill-opacity="0.2" d="M0,576L48,576C96,576,192,576,288,544C384,512,480,448,576,448C672,448,768,512,864,512C960,512,1056,448,1152,416C1248,384,1344,384,1392,384L1440,384L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-        </svg>
-    `,
-    'amplop-digital': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#667eea" fill-opacity="0.5" d="M0,640L48,640C96,640,192,640,288,618.7C384,597,480,555,576,538.7C672,523,768,533,864,522.7C960,512,1056,480,1152,480C1248,480,1344,512,1392,528L1440,544L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#764ba2" fill-opacity="0.4" d="M0,704L48,693.3C96,683,192,661,288,661.3C384,661,480,683,576,672C672,661,768,619,864,597.3C960,576,1056,576,1152,565.3C1248,555,1344,533,1392,522.7L1440,512L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-        </svg>
-    `,
-    'ucapan': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#2c2c2c" fill-opacity="0.4" d="M0,96L48,117.3C96,139,192,181,288,213.3C384,245,480,267,576,256C672,245,768,203,864,192C960,181,1056,203,1152,213.3C1248,224,1344,224,1392,224L1440,224L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#8b7355" fill-opacity="0.3" d="M0,32L48,64C96,96,192,160,288,165.3C384,171,480,117,576,101.3C672,85,768,107,864,138.7C960,171,1056,213,1152,213.3C1248,213,1344,171,1392,149.3L1440,128L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-        </svg>
-    `
+// File SVG untuk setiap section (ganti dengan nama file SVG Anda)
+const svgFiles = {
+    'pembuka': 'animasi.svg',
+    'detail-pengantin': 'animasi.svg',
+    'detail-acara': 'animasi.svg',
+    'penutup': 'animasi.svg',
+    'amplop-digital': 'animasi.svg',
+    'ucapan': 'animasi.svg'
 };
 
 // Fungsi untuk mengubah SVG background berdasarkan section yang aktif
 function updateSVGBackground(sectionId) {
     const svgContainer = document.getElementById('svg-background');
+    const pageOverlay = document.getElementById('page-overlay');
     
-    if (sectionBackgrounds[sectionId]) {
-        svgContainer.innerHTML = sectionBackgrounds[sectionId];
-    } else {
-        // Default background jika tidak ditemukan
-        svgContainer.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-                <path fill="#667eea" fill-opacity="0.5" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,234.7C672,235,768,213,864,192C960,171,1056,149,1152,133.3C1248,117,1344,107,1392,101.3L1440,96L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-                <path fill="#764ba2" fill-opacity="0.3" d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,149.3C672,139,768,149,864,165.3C960,181,1056,203,1152,218.7C1248,235,1344,245,1392,250.7L1440,256L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            </svg>
-        `;
-    }
-    
-    // Tambahkan animasi transisi
+    // Animasi fade out
     svgContainer.style.opacity = '0';
+    pageOverlay.style.opacity = '0';
+    
     setTimeout(() => {
-        svgContainer.style.transition = 'opacity 0.8s ease';
-        svgContainer.style.opacity = '1';
-    }, 50);
+        // Load SVG file untuk section aktif
+        if (svgFiles[sectionId]) {
+            loadSVGFile(svgFiles[sectionId], svgContainer);
+        } else {
+            // Default fallback jika tidak ada file
+            loadDefaultSVG(svgContainer);
+        }
+        
+        // Animasi fade in dengan delay
+        setTimeout(() => {
+            svgContainer.style.transition = 'opacity 1s ease';
+            pageOverlay.style.transition = 'opacity 1s ease';
+            svgContainer.style.opacity = '1';
+            pageOverlay.style.opacity = '1';
+        }, 300);
+    }, 500);
+}
+
+// Fungsi untuk load SVG file
+function loadSVGFile(fileName, container) {
+    fetch(fileName)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to load SVG: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(svgContent => {
+            container.innerHTML = svgContent;
+            
+            // Optimasi SVG untuk responsif
+            const svgElement = container.querySelector('svg');
+            if (svgElement) {
+                // Pastikan SVG responsif
+                if (!svgElement.hasAttribute('viewBox')) {
+                    svgElement.setAttribute('viewBox', '0 0 1440 800');
+                }
+                svgElement.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+                svgElement.style.width = '100%';
+                svgElement.style.height = '100%';
+                svgElement.style.objectFit = 'cover';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading SVG:', error);
+            loadDefaultSVG(container);
+        });
+}
+
+// Fungsi default SVG fallback
+function loadDefaultSVG(container) {
+    container.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:0.7">
+                        <animate attributeName="stop-color" values="#667eea;#764ba2;#d4af37;#667eea" dur="10s" repeatCount="indefinite"/>
+                    </stop>
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:0.5">
+                        <animate attributeName="stop-color" values="#764ba2;#d4af37;#667eea;#764ba2" dur="10s" repeatCount="indefinite"/>
+                    </stop>
+                </linearGradient>
+            </defs>
+            
+            <rect width="100%" height="100%" fill="url(#grad1)"/>
+            
+            <!-- Animated circles -->
+            <circle cx="20%" cy="30%" r="50" fill="#d4af37" opacity="0.3">
+                <animate attributeName="r" values="50;100;50" dur="8s" repeatCount="indefinite"/>
+                <animate attributeName="cx" values="20%;25%;20%" dur="6s" repeatCount="indefinite"/>
+            </circle>
+            
+            <circle cx="80%" cy="70%" r="70" fill="#c19a6b" opacity="0.2">
+                <animate attributeName="r" values="70;120;70" dur="10s" repeatCount="indefinite"/>
+                <animate attributeName="cy" values="70%;75%;70%" dur="7s" repeatCount="indefinite"/>
+            </circle>
+            
+            <!-- Floating elements -->
+            <path d="M1200,300 Q1220,280 1240,300 T1280,300" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.1">
+                <animate attributeName="d" 
+                    values="M1200,300 Q1220,280 1240,300 T1280,300;M1200,310 Q1220,290 1240,310 T1280,310;M1200,300 Q1220,280 1240,300 T1280,300" 
+                    dur="5s" repeatCount="indefinite"/>
+            </path>
+        </svg>
+    `;
 }
 
 // Fungsi untuk menambahkan efek typing pada teks
@@ -87,7 +123,8 @@ function applyTypingEffect() {
     
     typingElements.forEach((element, index) => {
         // Reset untuk animasi ulang
-        const text = element.textContent;
+        const originalText = element.getAttribute('data-original-text') || element.textContent;
+        element.setAttribute('data-original-text', originalText);
         element.textContent = '';
         element.style.width = '0';
         
@@ -96,10 +133,10 @@ function applyTypingEffect() {
             element.style.overflow = 'hidden';
             element.style.whiteSpace = 'nowrap';
             element.style.borderRight = '2px solid var(--primary)';
-            element.textContent = text;
+            element.textContent = originalText;
             
             // Animate typing
-            const charCount = text.length;
+            const charCount = originalText.length;
             const duration = Math.min(3000, charCount * 50); // Max 3 seconds
             
             element.style.animation = `typing ${duration/1000}s steps(${charCount}, end), blink-caret 0.75s step-end infinite`;
@@ -119,6 +156,11 @@ style.textContent = `
     @keyframes blink-caret {
         from, to { border-color: transparent }
         50% { border-color: var(--primary); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 `;
 document.head.appendChild(style);
@@ -229,8 +271,8 @@ function displayCommentsFromFirebase() {
     }, (error) => {
         console.error('Error loading comments:', error);
         $('#comments-container').html(`
-            <div class="comment-item">
-                <p style="text-align: center; color: #fff; font-style: italic;">
+            <div class="comment-item" data-aos="fade-up">
+                <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                     Gagal memuat ucapan. Silakan refresh halaman.
                 </p>
             </div>
@@ -286,7 +328,7 @@ $(document).ready(function() {
     }).catch(error => {
         console.error('Firebase initialization failed:', error);
         $('#comments-container').html(`
-            <div class="comment-item">
+            <div class="comment-item" data-aos="fade-up">
                 <p style="text-align: center; color: rgba(255, 255, 255, 0.7); font-style: italic;">
                     Mode offline. Ucapan tidak dapat dimuat.
                 </p>
@@ -516,22 +558,6 @@ $(document).ready(function() {
         $('#bottom-nav').hide();
     }
     
-    // Terapkan efek typing pada elemen dengan class typing-text
-    function initializeTypingEffects() {
-        const typingElements = document.querySelectorAll('.typing-text');
-        typingElements.forEach((element, index) => {
-            // Simpan teks asli
-            const originalText = element.textContent;
-            element.setAttribute('data-original-text', originalText);
-            
-            // Set width untuk animasi
-            element.style.width = '0';
-            element.style.overflow = 'hidden';
-            element.style.whiteSpace = 'nowrap';
-            element.style.display = 'inline-block';
-        });
-    }
-    
     // Inisialisasi efek typing
-    initializeTypingEffects();
+    applyTypingEffect();
 });
