@@ -8,10 +8,13 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Moontime&family=Open+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- Custom Fonts (akan di-load via @font-face) -->
+    <!-- Font TAN Mon Cheri -->
+    <link href="https://fonts.cdnfonts.com/css/tan-mon-cheri" rel="stylesheet">
+    
+    <!-- Font Amoretta -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/amoretta">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,32 +29,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Video Background Container -->
-    <div class="video-background">
-        <!-- BACKGROUND VIDEO ANIMASI 1 -->
-        <!-- GANTI URL VIDEO DIBAWAH INI dengan link video animasi Anda -->
-        <video id="video-bg-1" class="video-bg" autoplay muted loop>
-            <source src="https://raw.githubusercontent.com/Yazidulahmad/Foto-bahan/9e97bca7feab97dd7a9a15466b4325c80111176b/Merah%20Emas%20dan%20Coklat%20Ilustrasi%20Undangan%20Pernikahan%20Muslim%20Tema%20Rumah%20Tradisional%20Jawa%20Video%20Seluler.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        
-        <!-- BACKGROUND VIDEO ANIMASI 2 -->
-        <!-- GANTI URL VIDEO DIBAWAH INI dengan link video animasi kedua Anda -->
-        <video id="video-bg-2" class="video-bg" autoplay muted loop style="display: none;">
-            <source src="https://raw.githubusercontent.com/Yazidulahmad/Foto-bahan/9e97bca7feab97dd7a9a15466b4325c80111176b/Merah%20Emas%20dan%20Coklat%20Ilustrasi%20Undangan%20Pernikahan%20Muslim%20Tema%20Rumah%20Tradisional%20Jawa%20Video%20Seluler.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        
-        <!-- BACKGROUND VIDEO ANIMASI 3 -->
-        <!-- GANTI URL VIDEO DIBAWAH INI dengan link video animasi ketiga Anda -->
-        <video id="video-bg-3" class="video-bg" autoplay muted loop style="display: none;">
-            <source src="https://raw.githubusercontent.com/Yazidulahmad/Foto-bahan/9e97bca7feab97dd7a9a15466b4325c80111176b/Merah%20Emas%20dan%20Coklat%20Ilustrasi%20Undangan%20Pernikahan%20Muslim%20Tema%20Rumah%20Tradisional%20Jawa%20Video%20Seluler.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        
-        <!-- Overlay transparan untuk tiap halaman -->
-        <div class="video-overlay"></div>
-    </div>
+    <!-- SVG Background Animation untuk setiap section -->
+    <div class="svg-background" id="svg-background"></div>
+    
+    <!-- Overlay transparan untuk setiap section -->
+    <div class="page-overlay" id="page-overlay"></div>
     
     <!-- Audio Element -->
     <audio id="wedding-music" loop>
@@ -59,10 +41,26 @@
         Browser Anda tidak mendukung elemen audio.
     </audio>
     
-    <!-- Music Player -->
+    <!-- Music Player (Piringan Kaset) -->
     <div class="music-player">
-        <div class="music-btn" id="music-toggle">
-            <i class="fas fa-play" id="music-icon"></i>
+        <div class="cassette-player" id="music-toggle">
+            <div class="cassette">
+                <div class="cassette-body">
+                    <div class="cassette-hole"></div>
+                    <div class="cassette-hole"></div>
+                    <div class="cassette-label">
+                        <span>Wedding</span>
+                        <span>Music</span>
+                    </div>
+                    <div class="cassette-reel" id="cassette-reel">
+                        <div class="reel-center"></div>
+                    </div>
+                </div>
+                <div class="cassette-tape"></div>
+            </div>
+            <div class="cassette-controls">
+                <i class="fas fa-play" id="music-icon"></i>
+            </div>
         </div>
     </div>
     
@@ -110,7 +108,7 @@
                 </div>
                 <h2 class="cover-subtitle">Pernikahan</h2>
                 
-                <h3 class="couple-names-cover">Hartini &<br>Ahmad Yazidul Jihad</h3>
+                <div class="couple-names-cover">Hartini & Ahmad Yazidul Jihad</div>
                 
                 <div class="to-guest" id="guest-name">Kepada Yth. Bapak/Ibu/Saudara/i</div>
                 
@@ -133,9 +131,9 @@
     </section>
     
     <!-- Pembuka Section -->
-    <section id="pembuka" class="section">
+    <section id="pembuka" class="section content-section">
         <div class="container">
-            <div data-aos="fade-up">
+            <div class="text-container" data-aos="fade-up">
                 <p class="opening-quote arabic">"وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ"</p>
                 <p class="opening-quote">(QS. Ar-Rum: 21)</p>
                 <h2 class="couple-names typing-text">Hartini & Ahmad Yazidul Jihad</h2>
@@ -145,7 +143,7 @@
     </section>
     
     <!-- Detail Pengantin Section -->
-    <section id="detail-pengantin" class="section">
+    <section id="detail-pengantin" class="section content-section">
         <div class="container">
             <h2 data-aos="fade-up" class="section-title typing-text">Mempelai</h2>
             <div class="couple-container">
@@ -177,48 +175,49 @@
     </section>
     
     <!-- Detail Acara Section -->
-    <section id="detail-acara" class="section">
+    <section id="detail-acara" class="section content-section">
         <div class="container">
             <h2 data-aos="fade-up" class="section-title typing-text">Detail Acara</h2>
             
-            <!-- Hitung Mundur di dalam Detail Acara -->
-            <div class="countdown-in-event" data-aos="fade-up" data-aos-delay="200">
-                <h3 class="countdown-title typing-text">Menuju Hari Bahagia</h3>
-                <div class="countdown-container">
-                    <div class="countdown-item">
-                        <div class="countdown-number" id="days">00</div>
-                        <div class="countdown-label">Hari</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-number" id="hours">00</div>
-                        <div class="countdown-label">Jam</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-number" id="minutes">00</div>
-                        <div class="countdown-label">Menit</div>
-                    </div>
-                    <div class="countdown-item">
-                        <div class="countdown-number" id="seconds">00</div>
-                        <div class="countdown-label">Detik</div>
-                    </div>
+            <!-- Hitung Mundur di Acara -->
+            <div class="countdown-container" data-aos="fade-up" data-aos-delay="200">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="days">00</div>
+                    <div class="countdown-label typing-text">Hari</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="hours">00</div>
+                    <div class="countdown-label typing-text">Jam</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="minutes">00</div>
+                    <div class="countdown-label typing-text">Menit</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="seconds">00</div>
+                    <div class="countdown-label typing-text">Detik</div>
                 </div>
             </div>
             
             <div class="event-details">
-                <!-- Acara Gabungan Akad & Resepsi -->
-                <div class="event-card unified-event" data-aos="zoom-in" data-aos-delay="100">
+                <div class="event-card combined-event" data-aos="zoom-in" data-aos-delay="100">
                     <div class="event-icon">
-                        <i class="fas fa-mosque"></i>
-                        <i class="fas fa-glass-cheers"></i>
+                        <i class="fas fa-heart"></i>
                     </div>
                     <h3 class="event-title typing-text">Akad Nikah & Resepsi</h3>
-                    <p class="event-info"><i class="far fa-calendar"></i> Sabtu, 21 Desember 2025</p>
-                    <p class="event-info"><i class="far fa-clock"></i> 09:00 WIB (Akad)</p>
-                    <p class="event-info"><i class="far fa-clock"></i> 11:00 - 14:00 WIB (Resepsi)</p>
-                    <p class="event-info"><i class="fas fa-map-marker-alt"></i> Kediaman Mempelai Wanita & Gedung Serba Guna</p>
-                    <button class="btn btn-outline mt-3 calendar-btn unified-calendar-btn">
-                        <i class="far fa-calendar-plus"></i> Simpan ke Kalender
-                    </button>
+                    <p class="event-info typing-text"><i class="far fa-calendar"></i> Sabtu, 21 Desember 2025</p>
+                    <p class="event-info typing-text"><i class="far fa-clock"></i> 09:00 - 14:00 WIB</p>
+                    <p class="event-info typing-text"><i class="fas fa-map-marker-alt"></i> Kediaman Mempelai Wanita</p>
+                    <p class="event-info typing-text"><i class="fas fa-glass-cheers"></i> Dilanjutkan dengan Resepsi</p>
+                    
+                    <div class="event-actions">
+                        <button class="btn btn-outline mt-3 calendar-btn" id="save-akad-resepsi">
+                            <i class="far fa-calendar-plus"></i> Simpan ke Kalender
+                        </button>
+                        <button class="btn btn-outline mt-3" id="open-map">
+                            <i class="fas fa-directions"></i> Buka di Google Maps
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="event-card" data-aos="zoom-in" data-aos-delay="200">
@@ -226,102 +225,87 @@
                         <i class="fas fa-map-marked-alt"></i>
                     </div>
                     <h3 class="event-title typing-text">Lokasi Acara</h3>
-                    <p class="event-info"><i class="fas fa-location-dot"></i> Jl. Merdeka No. 123, Jakarta Pusat</p>
+                    <p class="event-info typing-text"><i class="fas fa-location-dot"></i> Jl. Merdeka No. 123, Jakarta Pusat</p>
                     <div class="map-placeholder">
                         <i class="fas fa-map-location-dot"></i>
-                        <p>Peta Lokasi</p>
+                        <p class="typing-text">Peta Lokasi</p>
                     </div>
-                    <button class="btn btn-outline mt-3" id="open-map">
-                        <i class="fas fa-directions"></i> Buka di Google Maps
-                    </button>
                 </div>
             </div>
         </div>
     </section>
     
     <!-- Penutup Section -->
-    <section id="penutup" class="section">
+    <section id="penutup" class="section content-section">
         <div class="container">
             <div data-aos="fade-up">
                 <h2 class="section-title typing-text">Terima Kasih</h2>
                 <p class="closing-message typing-text">Atas kehadiran dan doa restu Bapak/Ibu/Saudara/i, kami mengucapkan terima kasih. Semoga Allah SWT senantiasa meridhoi pernikahan kami dan memberikan keberkahan dalam rumah tangga yang akan kami bangun.</p>
                 <p class="closing-message arabic">وَالسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ</p>
                 <p class="closing-message typing-text">Kami yang berbahagia,</p>
-                <h3 class="couple-names">Hartini & Ahmad Yazidul Jihad</h3>
+                <h3 class="couple-names typing-text">Hartini & Ahmad Yazidul Jihad</h3>
             </div>
         </div>
     </section>
     
     <!-- Amplop Digital Section -->
-    <section id="amplop-digital" class="section">
+    <section id="amplop-digital" class="section content-section">
         <div class="container">
             <h2 data-aos="fade-up" class="section-title typing-text">Amplop Digital</h2>
             <p data-aos="fade-up" class="amplop-text typing-text">Untuk yang ingin memberikan tanda kasih, dapat melalui transfer ke:</p>
             <div class="bank-options">
-                <!-- Card Amplop ATM 1 -->
-                <div class="atm-card" data-aos="fade-right">
+                <div class="bank-card atm-card" data-aos="fade-right">
                     <div class="atm-card-header">
-                        <svg class="atm-chip" viewBox="0 0 24 24">
-                            <rect x="4" y="4" width="16" height="16" rx="3" ry="3" fill="#FFD700"/>
-                            <rect x="7" y="7" width="10" height="10" rx="2" ry="2" fill="#FFA500"/>
-                            <line x1="10" y1="7" x2="10" y2="17" stroke="#8B4513" stroke-width="1"/>
-                            <line x1="14" y1="7" x2="14" y2="17" stroke="#8B4513" stroke-width="1"/>
-                        </svg>
-                        <div class="atm-bank-logo">
+                        <div class="chip"></div>
+                        <div class="bank-logo">
                             <i class="fas fa-university"></i>
                             <span>BCA</span>
                         </div>
                     </div>
-                    <div class="atm-card-number">
-                        <span>1234 5678 9012 3456</span>
-                    </div>
-                    <div class="atm-card-details">
-                        <div class="atm-card-holder">
-                            <small>Card Holder</small>
-                            <p>Hartini</p>
-                        </div>
-                        <div class="atm-card-valid">
-                            <small>Valid Thru</small>
-                            <p>12/25</p>
+                    <div class="atm-card-body">
+                        <div class="card-number">1234 5678 9012 3456</div>
+                        <div class="card-details">
+                            <div class="card-holder">
+                                <div class="label typing-text">Pemilik Kartu</div>
+                                <div class="value">Hartini</div>
+                            </div>
+                            <div class="card-valid">
+                                <div class="label typing-text">Valid Thru</div>
+                                <div class="value">12/30</div>
+                            </div>
                         </div>
                     </div>
                     <div class="atm-card-footer">
-                        <button class="btn-copy-atm" data-account="1234567890123456">
-                            <i class="far fa-copy"></i> Salin Nomor Rekening
+                        <button class="btn-copy atm-copy-btn" data-account="1234567890123456">
+                            <i class="far fa-copy"></i> Salin Nomor
                         </button>
                     </div>
                 </div>
                 
-                <!-- Card Amplop ATM 2 -->
-                <div class="atm-card" data-aos="fade-left">
+                <div class="bank-card atm-card" data-aos="fade-left">
                     <div class="atm-card-header">
-                        <svg class="atm-chip" viewBox="0 0 24 24">
-                            <rect x="4" y="4" width="16" height="16" rx="3" ry="3" fill="#FFD700"/>
-                            <rect x="7" y="7" width="10" height="10" rx="2" ry="2" fill="#FFA500"/>
-                            <line x1="10" y1="7" x2="10" y2="17" stroke="#8B4513" stroke-width="1"/>
-                            <line x1="14" y1="7" x2="14" y2="17" stroke="#8B4513" stroke-width="1"/>
-                        </svg>
-                        <div class="atm-bank-logo">
+                        <div class="chip"></div>
+                        <div class="bank-logo">
                             <i class="fas fa-landmark"></i>
                             <span>Mandiri</span>
                         </div>
                     </div>
-                    <div class="atm-card-number">
-                        <span>9876 5432 1098 7654</span>
-                    </div>
-                    <div class="atm-card-details">
-                        <div class="atm-card-holder">
-                            <small>Card Holder</small>
-                            <p>Ahmad Yazidul Jihad</p>
-                        </div>
-                        <div class="atm-card-valid">
-                            <small>Valid Thru</small>
-                            <p>12/25</p>
+                    <div class="atm-card-body">
+                        <div class="card-number">9876 5432 1098 7654</div>
+                        <div class="card-details">
+                            <div class="card-holder">
+                                <div class="label typing-text">Pemilik Kartu</div>
+                                <div class="value">Ahmad Yazidul Jihad</div>
+                            </div>
+                            <div class="card-valid">
+                                <div class="label typing-text">Valid Thru</div>
+                                <div class="value">12/30</div>
+                            </div>
                         </div>
                     </div>
                     <div class="atm-card-footer">
-                        <button class="btn-copy-atm" data-account="9876543210987654">
-                            <i class="far fa-copy"></i> Salin Nomor Rekening
+                        <button class="btn-copy atm-copy-btn" data-account="9876543210987654">
+                            <i class="far fa-copy"></i> Salin Nomor
                         </button>
                     </div>
                 </div>
@@ -330,12 +314,12 @@
     </section>
     
     <!-- Ucapan Section -->
-    <section id="ucapan" class="section">
+    <section id="ucapan" class="section content-section">
         <div class="container">
             <h2 data-aos="fade-up" class="section-title typing-text">Kirim Ucapan</h2>
             <div class="comment-form" data-aos="fade-up">
                 <div class="form-group">
-                    <textarea class="form-control typing-text" id="comment-message" placeholder="Tulis ucapan dan doa Anda di sini..."></textarea>
+                    <textarea class="form-control" id="comment-message" placeholder="Tulis ucapan dan doa Anda di sini..."></textarea>
                 </div>
                 <button class="btn" id="submit-comment">
                     <i class="fas fa-paper-plane"></i> Kirim Ucapan
