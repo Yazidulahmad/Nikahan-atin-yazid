@@ -58,27 +58,7 @@ function loadSVGBackground() {
                 svgElement.style.opacity = '0.7';
             }
         })
-        .catch(error => {
-            console.error('Error loading SVG:', error);
-            // Fallback jika SVG tidak ditemukan
-            const svgContainer = document.getElementById('svg-background');
-            svgContainer.innerHTML = `
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:rgba(212,175,55,0.1);stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:rgba(139,115,85,0.05);stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grad1)" />
-                    <circle cx="20%" cy="20%" r="100" fill="rgba(193,154,107,0.05)" />
-                    <circle cx="80%" cy="30%" r="150" fill="rgba(212,175,55,0.05)" />
-                    <circle cx="50%" cy="70%" r="120" fill="rgba(139,115,85,0.05)" />
-                </svg>
-            `;
-        });
-}
-
+    
 // Fungsi untuk mengambil parameter dari URL
 function getUrlParameter(name) {
     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -198,31 +178,6 @@ function displayComments(comments) {
             </div>
         `;
         commentsContainer.append(commentHtml);
-    });
-}
-
-// Animasi teks typewriter
-function animateTextElements() {
-    $('.typewriter-text').each(function(index) {
-        const element = $(this);
-        const text = element.text();
-        element.text('');
-        
-        // Delay berbeda untuk setiap elemen
-        setTimeout(() => {
-            let i = 0;
-            const speed = 50; // ms per karakter
-            
-            function typeWriter() {
-                if (i < text.length) {
-                    element.text(element.text() + text.charAt(i));
-                    i++;
-                    setTimeout(typeWriter, speed);
-                }
-            }
-            
-            typeWriter();
-        }, index * 300);
     });
 }
 
