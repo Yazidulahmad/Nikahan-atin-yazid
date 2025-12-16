@@ -21,9 +21,8 @@ let commentsRef;
 // Konfigurasi SVG Background untuk setiap section
 const sectionBackgrounds = {
     'pembuka': `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800">
-            <path fill="#667eea" fill-opacity="0.5" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,234.7C672,235,768,213,864,192C960,171,1056,149,1152,133.3C1248,117,1344,107,1392,101.3L1440,96L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
-            <path fill="#764ba2" fill-opacity="0.3" d="M0,160L48,170.7C96,181,192,203,288,197.3C384,192,480,160,576,149.3C672,139,768,149,864,165.3C960,181,1056,203,1152,218.7C1248,235,1344,245,1392,250.7L1440,256L1440,800L1392,800C1344,800,1248,800,1152,800C1056,800,960,800,864,800C768,800,672,800,576,800C480,800,384,800,288,800C192,800,96,800,48,800L0,800Z"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1080" zoomAndPan="magnify" viewBox="0 0 810 1439.999935" height="1920" preserveAspectRatio="xMidYMid meet" version="1.0" xmlns:bx="https://boxy-svg.com">
+  <defs>
         </svg>
     `,
     'detail-pengantin': `
